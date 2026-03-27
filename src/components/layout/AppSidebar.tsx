@@ -6,9 +6,11 @@ import {
   Stethoscope,
   FileText,
   Bell,
-  Shield,
   ChevronLeft,
+  LogOut,
 } from "lucide-react";
+import logoHSControl from "@/assets/logo-hscontrol.jpeg";
+import { useAuth } from "@/contexts/AuthContext";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
@@ -38,14 +40,13 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { signOut } = useAuth();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg gradient-primary">
-            <Shield className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
+          <img src={logoHSControl} alt="HSControl" className="h-9 w-9 shrink-0 rounded-lg object-contain" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-bold text-sidebar-primary-foreground tracking-tight">
@@ -93,15 +94,24 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3">
+      <SidebarFooter className="p-3 space-y-2">
         {!collapsed && (
-          <button
-            onClick={toggleSidebar}
-            className="flex items-center gap-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Contraer menú
-          </button>
+          <>
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Cerrar sesión
+            </button>
+            <button
+              onClick={toggleSidebar}
+              className="flex items-center gap-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Contraer menú
+            </button>
+          </>
         )}
       </SidebarFooter>
     </Sidebar>
