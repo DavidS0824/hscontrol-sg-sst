@@ -6,9 +6,11 @@ import {
   Stethoscope,
   FileText,
   Bell,
-  Shield,
   ChevronLeft,
+  LogOut,
 } from "lucide-react";
+import logoHSControl from "@/assets/logo-hscontrol.jpeg";
+import { useAuth } from "@/contexts/AuthContext";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import {
