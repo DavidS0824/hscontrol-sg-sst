@@ -63,7 +63,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-card">
         <CardHeader className="text-center space-y-3 pb-2">
-          <img src={logoHSControl} alt="HSControl" className="h-16 mx-auto object-contain" />
+          <img src={logoHSControl} alt="HSControl" className="h-28 mx-auto object-contain" />
           <p className="text-sm text-muted-foreground">Gestión inteligente en Seguridad y Salud</p>
         </CardHeader>
         <CardContent>
