@@ -45,9 +45,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg gradient-primary">
-            <Shield className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
+          <img src={logoHSControl} alt="HSControl" className="h-9 w-9 shrink-0 rounded-lg object-contain" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-bold text-sidebar-primary-foreground tracking-tight">
