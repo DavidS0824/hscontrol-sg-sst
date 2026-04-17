@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      aci_reportes: {
+        Row: {
+          acciones_tomadas: string | null
+          area: string | null
+          created_at: string
+          descripcion: string
+          estado: string
+          fecha_cierre: string | null
+          fecha_reporte: string
+          foto_url: string | null
+          id: string
+          nivel_riesgo: string
+          reportado_por: string | null
+          reportado_por_nombre: string | null
+          tipo: string
+          ubicacion: string | null
+          updated_at: string
+        }
+        Insert: {
+          acciones_tomadas?: string | null
+          area?: string | null
+          created_at?: string
+          descripcion: string
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_reporte?: string
+          foto_url?: string | null
+          id?: string
+          nivel_riesgo?: string
+          reportado_por?: string | null
+          reportado_por_nombre?: string | null
+          tipo?: string
+          ubicacion?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acciones_tomadas?: string | null
+          area?: string | null
+          created_at?: string
+          descripcion?: string
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_reporte?: string
+          foto_url?: string | null
+          id?: string
+          nivel_riesgo?: string
+          reportado_por?: string | null
+          reportado_por_nombre?: string | null
+          tipo?: string
+          ubicacion?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       asistencia: {
         Row: {
           asistio: boolean | null
@@ -171,6 +225,166 @@ export type Database = {
           },
         ]
       }
+      checklist_ejecuciones: {
+        Row: {
+          area: string | null
+          created_at: string
+          ejecutado_por: string | null
+          ejecutado_por_nombre: string | null
+          estado: string
+          fecha_ejecucion: string
+          id: string
+          observaciones: string | null
+          plantilla_id: string
+          porcentaje_cumplimiento: number
+          ubicacion: string | null
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string
+          ejecutado_por?: string | null
+          ejecutado_por_nombre?: string | null
+          estado?: string
+          fecha_ejecucion?: string
+          id?: string
+          observaciones?: string | null
+          plantilla_id: string
+          porcentaje_cumplimiento?: number
+          ubicacion?: string | null
+        }
+        Update: {
+          area?: string | null
+          created_at?: string
+          ejecutado_por?: string | null
+          ejecutado_por_nombre?: string | null
+          estado?: string
+          fecha_ejecucion?: string
+          id?: string
+          observaciones?: string | null
+          plantilla_id?: string
+          porcentaje_cumplimiento?: number
+          ubicacion?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_ejecuciones_plantilla_id_fkey"
+            columns: ["plantilla_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_plantillas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_items: {
+        Row: {
+          created_at: string
+          id: string
+          obligatorio: boolean
+          orden: number
+          plantilla_id: string
+          pregunta: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          obligatorio?: boolean
+          orden?: number
+          plantilla_id: string
+          pregunta: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          obligatorio?: boolean
+          orden?: number
+          plantilla_id?: string
+          pregunta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_items_plantilla_id_fkey"
+            columns: ["plantilla_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_plantillas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_plantillas: {
+        Row: {
+          activa: boolean
+          categoria: string
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          activa?: boolean
+          categoria?: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          activa?: boolean
+          categoria?: string
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      checklist_respuestas: {
+        Row: {
+          created_at: string
+          ejecucion_id: string
+          id: string
+          item_id: string
+          observacion: string | null
+          respuesta: string
+        }
+        Insert: {
+          created_at?: string
+          ejecucion_id: string
+          id?: string
+          item_id: string
+          observacion?: string | null
+          respuesta?: string
+        }
+        Update: {
+          created_at?: string
+          ejecucion_id?: string
+          id?: string
+          item_id?: string
+          observacion?: string | null
+          respuesta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_respuestas_ejecucion_id_fkey"
+            columns: ["ejecucion_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_ejecuciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "checklist_respuestas_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "checklist_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evaluaciones: {
         Row: {
           aprobado: boolean | null
@@ -298,6 +512,69 @@ export type Database = {
         }
         Relationships: []
       }
+      permisos_trabajo: {
+        Row: {
+          aprobado_por: string | null
+          area: string | null
+          controles_requeridos: string | null
+          created_at: string
+          created_by: string | null
+          descripcion_tarea: string
+          ejecutores: string | null
+          epp_requerido: string | null
+          estado: string
+          fecha_aprobacion: string | null
+          fecha_fin: string | null
+          fecha_inicio: string
+          id: string
+          observaciones: string | null
+          responsable: string
+          riesgos_identificados: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          aprobado_por?: string | null
+          area?: string | null
+          controles_requeridos?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion_tarea: string
+          ejecutores?: string | null
+          epp_requerido?: string | null
+          estado?: string
+          fecha_aprobacion?: string | null
+          fecha_fin?: string | null
+          fecha_inicio: string
+          id?: string
+          observaciones?: string | null
+          responsable: string
+          riesgos_identificados?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          aprobado_por?: string | null
+          area?: string | null
+          controles_requeridos?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion_tarea?: string
+          ejecutores?: string | null
+          epp_requerido?: string | null
+          estado?: string
+          fecha_aprobacion?: string | null
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          observaciones?: string | null
+          responsable?: string
+          riesgos_identificados?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_anual_trabajo: {
         Row: {
           actividad: string
@@ -348,6 +625,57 @@ export type Database = {
           observaciones?: string | null
           presupuesto?: number | null
           responsable?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_emergencias: {
+        Row: {
+          area: string | null
+          created_at: string
+          created_by: string | null
+          descripcion: string | null
+          estado: string
+          fecha: string | null
+          id: string
+          nombre: string
+          observaciones: string | null
+          participantes: number | null
+          recursos: string | null
+          responsable: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          area?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha?: string | null
+          id?: string
+          nombre: string
+          observaciones?: string | null
+          participantes?: number | null
+          recursos?: string | null
+          responsable?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string | null
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string | null
+          estado?: string
+          fecha?: string | null
+          id?: string
+          nombre?: string
+          observaciones?: string | null
+          participantes?: number | null
+          recursos?: string | null
+          responsable?: string | null
+          tipo?: string
           updated_at?: string
         }
         Relationships: []
