@@ -6,6 +6,10 @@ import {
   Stethoscope,
   FileText,
   Bell,
+  ShieldAlert,
+  CalendarRange,
+  ClipboardList,
+  TrendingUp,
   ChevronLeft,
   LogOut,
 } from "lucide-react";
@@ -28,11 +32,15 @@ import {
 
 const modules = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert },
+  { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange },
   { title: "Accidentes", url: "/accidentes", icon: AlertTriangle },
   { title: "Inspecciones", url: "/inspecciones", icon: ClipboardCheck },
   { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap },
   { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope },
   { title: "Documentos", url: "/documentos", icon: FileText },
+  { title: "Autoevaluación 0312", url: "/autoevaluacion", icon: ClipboardList },
+  { title: "Plan de Mejoramiento", url: "/plan-mejoramiento", icon: TrendingUp },
   { title: "Alertas", url: "/alertas", icon: Bell },
 ];
 
