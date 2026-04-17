@@ -46,6 +46,54 @@ export type Database = {
           },
         ]
       }
+      autoevaluacion_estandares: {
+        Row: {
+          anio_evaluacion: number
+          calificacion_maxima: number
+          calificacion_obtenida: number
+          ciclo: string
+          created_at: string
+          created_by: string | null
+          criterio: string | null
+          estandar: string
+          evidencia: string | null
+          id: string
+          justificacion: string | null
+          numero_estandar: string
+          updated_at: string
+        }
+        Insert: {
+          anio_evaluacion?: number
+          calificacion_maxima?: number
+          calificacion_obtenida?: number
+          ciclo: string
+          created_at?: string
+          created_by?: string | null
+          criterio?: string | null
+          estandar: string
+          evidencia?: string | null
+          id?: string
+          justificacion?: string | null
+          numero_estandar: string
+          updated_at?: string
+        }
+        Update: {
+          anio_evaluacion?: number
+          calificacion_maxima?: number
+          calificacion_obtenida?: number
+          ciclo?: string
+          created_at?: string
+          created_by?: string | null
+          criterio?: string | null
+          estandar?: string
+          evidencia?: string | null
+          id?: string
+          justificacion?: string | null
+          numero_estandar?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       capacitaciones: {
         Row: {
           codigo_acceso: string | null
@@ -195,6 +243,165 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      matriz_riesgos: {
+        Row: {
+          actividad: string
+          area: string | null
+          controles_existentes: string | null
+          controles_propuestos: string | null
+          created_at: string
+          created_by: string | null
+          estado: string
+          fecha_revision: string | null
+          id: string
+          nivel_riesgo: string
+          peligro: string
+          proceso: string
+          responsable: string | null
+          tipo_peligro: string
+          updated_at: string
+        }
+        Insert: {
+          actividad: string
+          area?: string | null
+          controles_existentes?: string | null
+          controles_propuestos?: string | null
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_revision?: string | null
+          id?: string
+          nivel_riesgo?: string
+          peligro: string
+          proceso: string
+          responsable?: string | null
+          tipo_peligro: string
+          updated_at?: string
+        }
+        Update: {
+          actividad?: string
+          area?: string | null
+          controles_existentes?: string | null
+          controles_propuestos?: string | null
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          fecha_revision?: string | null
+          id?: string
+          nivel_riesgo?: string
+          peligro?: string
+          proceso?: string
+          responsable?: string | null
+          tipo_peligro?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_anual_trabajo: {
+        Row: {
+          actividad: string
+          anio: number
+          avance: number
+          created_at: string
+          created_by: string | null
+          estado: string
+          evidencias: string | null
+          fecha_fin: string | null
+          fecha_inicio: string | null
+          id: string
+          objetivo: string | null
+          observaciones: string | null
+          presupuesto: number | null
+          responsable: string | null
+          updated_at: string
+        }
+        Insert: {
+          actividad: string
+          anio?: number
+          avance?: number
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          evidencias?: string | null
+          fecha_fin?: string | null
+          fecha_inicio?: string | null
+          id?: string
+          objetivo?: string | null
+          observaciones?: string | null
+          presupuesto?: number | null
+          responsable?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actividad?: string
+          anio?: number
+          avance?: number
+          created_at?: string
+          created_by?: string | null
+          estado?: string
+          evidencias?: string | null
+          fecha_fin?: string | null
+          fecha_inicio?: string | null
+          id?: string
+          objetivo?: string | null
+          observaciones?: string | null
+          presupuesto?: number | null
+          responsable?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      plan_mejoramiento: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          descripcion: string
+          eficacia: string | null
+          estado: string
+          fecha_cierre: string | null
+          fecha_identificacion: string
+          fecha_limite: string | null
+          id: string
+          observaciones: string | null
+          origen_hallazgo: string
+          responsable: string | null
+          tipo_accion: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          descripcion: string
+          eficacia?: string | null
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_identificacion?: string
+          fecha_limite?: string | null
+          id?: string
+          observaciones?: string | null
+          origen_hallazgo: string
+          responsable?: string | null
+          tipo_accion?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          descripcion?: string
+          eficacia?: string | null
+          estado?: string
+          fecha_cierre?: string | null
+          fecha_identificacion?: string
+          fecha_limite?: string | null
+          id?: string
+          observaciones?: string | null
+          origen_hallazgo?: string
+          responsable?: string | null
+          tipo_accion?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
