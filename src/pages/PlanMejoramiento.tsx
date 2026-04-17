@@ -86,8 +86,8 @@ export default function PlanMejoramiento() {
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-xl bg-card shadow-card p-4"><p className="text-xs text-muted-foreground">Total hallazgos</p><p className="text-2xl font-bold mt-1">{items.length}</p></div>
-          <div className="rounded-xl bg-card shadow-card p-4"><p className="text-xs text-muted-foreground">En gestión</p><p className="text-2xl font-bold mt-1 text-orange-500">{abiertos}</p></div>
-          <div className="rounded-xl bg-card shadow-card p-4"><p className="text-xs text-muted-foreground">Cerrados</p><p className="text-2xl font-bold mt-1 text-emerald-500">{cerrados}</p></div>
+          <div className="rounded-xl bg-card shadow-card p-4"><p className="text-xs text-muted-foreground">En gestión</p><p className="text-2xl font-bold mt-1 text-destructive">{abiertos}</p></div>
+          <div className="rounded-xl bg-card shadow-card p-4"><p className="text-xs text-muted-foreground">Cerrados</p><p className="text-2xl font-bold mt-1 text-primary">{cerrados}</p></div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
