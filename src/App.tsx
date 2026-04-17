@@ -12,6 +12,7 @@ import Examenes from "./pages/Examenes";
 import Documentos from "./pages/Documentos";
 import Alertas from "./pages/Alertas";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+    <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
     <Route path="/accidentes" element={<ProtectedRoute><Accidentes /></ProtectedRoute>} />
     <Route path="/inspecciones" element={<ProtectedRoute><Inspecciones /></ProtectedRoute>} />

@@ -14,7 +14,27 @@ export default function Login() {
   const [fullName, setFullName] = useState("");
   const [codigoAcceso, setCodigoAcceso] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
   const { toast } = useToast();
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Ingresa tu correo", description: "Necesitamos tu correo para enviar el enlace.", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Correo enviado", description: "Revisa tu bandeja de entrada para restablecer tu contraseña." });
+      setShowForgot(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,7 +107,34 @@ export default function Login() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Ingresando..." : "Iniciar sesión"}
                 </Button>
+                <button
+                  type="button"
+                  onClick={() => setShowForgot(true)}
+                  className="text-sm text-primary hover:underline w-full text-center"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
               </form>
+
+              {showForgot && (
+                <form onSubmit={handleForgotPassword} className="mt-4 space-y-3 p-4 border rounded-md bg-muted/30">
+                  <p className="text-sm text-muted-foreground">
+                    Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="forgot-email">Correo electrónico</Label>
+                    <Input id="forgot-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="submit" className="flex-1" disabled={loading}>
+                      {loading ? "Enviando..." : "Enviar enlace"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setShowForgot(false)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </form>
+              )}
             </TabsContent>
 
             <TabsContent value="register">
