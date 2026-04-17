@@ -11,6 +11,10 @@ import Capacitaciones from "./pages/Capacitaciones";
 import Examenes from "./pages/Examenes";
 import Documentos from "./pages/Documentos";
 import Alertas from "./pages/Alertas";
+import MatrizRiesgos from "./pages/MatrizRiesgos";
+import PlanAnualTrabajo from "./pages/PlanAnualTrabajo";
+import Autoevaluacion from "./pages/Autoevaluacion";
+import PlanMejoramiento from "./pages/PlanMejoramiento";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -42,6 +46,10 @@ const AppRoutes = () => (
     <Route path="/examenes" element={<ProtectedRoute><Examenes /></ProtectedRoute>} />
     <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
     <Route path="/alertas" element={<ProtectedRoute><Alertas /></ProtectedRoute>} />
+    <Route path="/matriz-riesgos" element={<ProtectedRoute><MatrizRiesgos /></ProtectedRoute>} />
+    <Route path="/plan-anual" element={<ProtectedRoute><PlanAnualTrabajo /></ProtectedRoute>} />
+    <Route path="/autoevaluacion" element={<ProtectedRoute><Autoevaluacion /></ProtectedRoute>} />
+    <Route path="/plan-mejoramiento" element={<ProtectedRoute><PlanMejoramiento /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
