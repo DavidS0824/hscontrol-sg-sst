@@ -1,1 +1,10 @@
 project_id = "tqkggdymhjfwtljbvaod"
+
+[functions.asistente-sgsst]
+verify_jwt = false
+
+[functions.generar-documento-sgsst]
+verify_jwt = true
+
+[functions.ocr-examen-medico]
+verify_jwt = true

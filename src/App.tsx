@@ -19,6 +19,9 @@ import ReporteACI from "./pages/ReporteACI";
 import PermisosTrabajo from "./pages/PermisosTrabajo";
 import Checklists from "./pages/Checklists";
 import PlanEmergencias from "./pages/PlanEmergencias";
+import AsistenteIA from "./pages/AsistenteIA";
+import GeneradorDocumentos from "./pages/GeneradorDocumentos";
+import ExamenesMedicos from "./pages/ExamenesMedicos";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -58,6 +61,9 @@ const AppRoutes = () => (
     <Route path="/permisos-trabajo" element={<ProtectedRoute><PermisosTrabajo /></ProtectedRoute>} />
     <Route path="/checklists" element={<ProtectedRoute><Checklists /></ProtectedRoute>} />
     <Route path="/plan-emergencias" element={<ProtectedRoute><PlanEmergencias /></ProtectedRoute>} />
+    <Route path="/asistente-ia" element={<ProtectedRoute><AsistenteIA /></ProtectedRoute>} />
+    <Route path="/generador-documentos" element={<ProtectedRoute><GeneradorDocumentos /></ProtectedRoute>} />
+    <Route path="/examenes-medicos" element={<ProtectedRoute><ExamenesMedicos /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
