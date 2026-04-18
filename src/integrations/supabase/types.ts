@@ -420,6 +420,72 @@ export type Database = {
           },
         ]
       }
+      examenes_medicos: {
+        Row: {
+          aptitud: string
+          archivo_url: string | null
+          area: string | null
+          cargo: string | null
+          created_at: string
+          created_by: string | null
+          datos_extraidos: Json | null
+          fecha_examen: string
+          fecha_vencimiento: string | null
+          id: string
+          ips: string | null
+          medico_evaluador: string | null
+          observaciones: string | null
+          recomendaciones: string | null
+          restricciones: string | null
+          tipo_examen: string
+          trabajador_documento: string | null
+          trabajador_nombre: string
+          updated_at: string
+        }
+        Insert: {
+          aptitud?: string
+          archivo_url?: string | null
+          area?: string | null
+          cargo?: string | null
+          created_at?: string
+          created_by?: string | null
+          datos_extraidos?: Json | null
+          fecha_examen?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          ips?: string | null
+          medico_evaluador?: string | null
+          observaciones?: string | null
+          recomendaciones?: string | null
+          restricciones?: string | null
+          tipo_examen?: string
+          trabajador_documento?: string | null
+          trabajador_nombre: string
+          updated_at?: string
+        }
+        Update: {
+          aptitud?: string
+          archivo_url?: string | null
+          area?: string | null
+          cargo?: string | null
+          created_at?: string
+          created_by?: string | null
+          datos_extraidos?: Json | null
+          fecha_examen?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          ips?: string | null
+          medico_evaluador?: string | null
+          observaciones?: string | null
+          recomendaciones?: string | null
+          restricciones?: string | null
+          tipo_examen?: string
+          trabajador_documento?: string | null
+          trabajador_nombre?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       materiales: {
         Row: {
           capacitacion_id: string
