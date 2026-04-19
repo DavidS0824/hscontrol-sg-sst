@@ -1,0 +1,54 @@
+{
+  "name": "HSControl - SG-SST",
+  "short_name": "HSControl",
+  "description": "Plataforma SG-SST para empresas colombianas. Reportes ACI, inspecciones y gestión de seguridad desde campo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0d9488",
+  "lang": "es-CO",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Reportar ACI",
+      "short_name": "ACI",
+      "description": "Reportar acto o condición insegura",
+      "url": "/reporte-aci",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Permisos de Trabajo",
+      "short_name": "Permisos",
+      "url": "/permisos-trabajo",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Checklists",
+      "short_name": "Checklists",
+      "url": "/checklists",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
