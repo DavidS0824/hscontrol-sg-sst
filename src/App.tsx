@@ -25,6 +25,9 @@ import ExamenesMedicos from "./pages/ExamenesMedicos";
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import Trabajadores from "./pages/Trabajadores";
+import TrabajadorPerfil from "./pages/TrabajadorPerfil";
+import AnaliticaIA from "./pages/AnaliticaIA";
 import { InstallPWA } from "./components/InstallPWA";
 
 const queryClient = new QueryClient();
@@ -65,6 +68,9 @@ const AppRoutes = () => (
     <Route path="/asistente-ia" element={<ProtectedRoute><AsistenteIA /></ProtectedRoute>} />
     <Route path="/generador-documentos" element={<ProtectedRoute><GeneradorDocumentos /></ProtectedRoute>} />
     <Route path="/examenes-medicos" element={<ProtectedRoute><ExamenesMedicos /></ProtectedRoute>} />
+    <Route path="/trabajadores" element={<ProtectedRoute><Trabajadores /></ProtectedRoute>} />
+    <Route path="/trabajadores/:id" element={<ProtectedRoute><TrabajadorPerfil /></ProtectedRoute>} />
+    <Route path="/analitica-ia" element={<ProtectedRoute><AnaliticaIA /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );

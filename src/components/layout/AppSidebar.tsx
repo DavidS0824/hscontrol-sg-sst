@@ -17,6 +17,8 @@ import {
   Bot,
   FileSignature,
   ScanLine,
+  Users,
+  Brain,
   ChevronLeft,
   LogOut,
 } from "lucide-react";
@@ -39,6 +41,8 @@ import {
 
 const modules = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Análisis IA", url: "/analitica-ia", icon: Brain },
+  { title: "Trabajadores", url: "/trabajadores", icon: Users },
   { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert },
   { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange },
   { title: "Reporte ACI", url: "/reporte-aci", icon: Camera },
