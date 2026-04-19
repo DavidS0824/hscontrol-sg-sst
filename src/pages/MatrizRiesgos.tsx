@@ -11,6 +11,7 @@ import { Plus, ShieldAlert, Search, Trash2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { AnalizarConIA } from "@/components/AnalizarConIA";
 
 interface Riesgo {
   id: string;
@@ -98,11 +99,13 @@ export default function MatrizRiesgos() {
             <ShieldAlert className="h-4 w-4" />
             Identificación, valoración y control de peligros (GTC 45 simplificada)
           </p>
-          {isAdmin && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={openNew}><Plus className="h-4 w-4 mr-1.5" />Nuevo riesgo</Button>
-              </DialogTrigger>
+          <div className="flex items-center gap-2">
+            <AnalizarConIA contexto="Matriz de Peligros y Riesgos" />
+            {isAdmin && (
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={openNew}><Plus className="h-4 w-4 mr-1.5" />Nuevo riesgo</Button>
+                </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader><DialogTitle>{editing ? "Editar riesgo" : "Nuevo riesgo"}</DialogTitle></DialogHeader>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
@@ -145,8 +148,9 @@ export default function MatrizRiesgos() {
                   <Button onClick={handleSave}>Guardar</Button>
                 </DialogFooter>
               </DialogContent>
-            </Dialog>
-          )}
+              </Dialog>
+            )}
+          </div>
         </div>
 
         <div className="relative max-w-sm">

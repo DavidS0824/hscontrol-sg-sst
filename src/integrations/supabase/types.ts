@@ -827,6 +827,84 @@ export type Database = {
         }
         Relationships: []
       }
+      trabajadores: {
+        Row: {
+          afp: string | null
+          area: string | null
+          arl: string | null
+          cargo: string | null
+          contacto_emergencia_nombre: string | null
+          contacto_emergencia_telefono: string | null
+          correo: string | null
+          created_at: string
+          created_by: string | null
+          direccion: string | null
+          documento: string
+          eps: string | null
+          estado: string
+          fecha_ingreso: string | null
+          fecha_retiro: string | null
+          id: string
+          nivel_riesgo_cargo: string | null
+          nombre: string
+          observaciones: string | null
+          sede: string | null
+          telefono: string | null
+          tipo_documento: string
+          updated_at: string
+        }
+        Insert: {
+          afp?: string | null
+          area?: string | null
+          arl?: string | null
+          cargo?: string | null
+          contacto_emergencia_nombre?: string | null
+          contacto_emergencia_telefono?: string | null
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          documento: string
+          eps?: string | null
+          estado?: string
+          fecha_ingreso?: string | null
+          fecha_retiro?: string | null
+          id?: string
+          nivel_riesgo_cargo?: string | null
+          nombre: string
+          observaciones?: string | null
+          sede?: string | null
+          telefono?: string | null
+          tipo_documento?: string
+          updated_at?: string
+        }
+        Update: {
+          afp?: string | null
+          area?: string | null
+          arl?: string | null
+          cargo?: string | null
+          contacto_emergencia_nombre?: string | null
+          contacto_emergencia_telefono?: string | null
+          correo?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          documento?: string
+          eps?: string | null
+          estado?: string
+          fecha_ingreso?: string | null
+          fecha_retiro?: string | null
+          id?: string
+          nivel_riesgo_cargo?: string | null
+          nombre?: string
+          observaciones?: string | null
+          sede?: string | null
+          telefono?: string | null
+          tipo_documento?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
