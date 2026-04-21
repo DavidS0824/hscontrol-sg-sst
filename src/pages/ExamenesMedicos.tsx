@@ -17,6 +17,7 @@ interface Examen {
   trabajador_nombre: string;
   trabajador_documento: string | null;
   cargo: string | null;
+  area?: string | null;
   tipo_examen: string;
   aptitud: string;
   restricciones: string | null;
