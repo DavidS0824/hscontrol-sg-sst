@@ -48,6 +48,116 @@ const typeColors: Record<string, string> = {
 };
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [accidentData, setAccidentData] = useState<{ mes: string; accidentes: number; incidentes: number }[]>([]);
+  const [complianceData, setComplianceData] = useState<{ name: string; value: number; color: string }[]>([]);
+  const [riskData, setRiskData] = useState<{ mes: string; alto: number; medio: number; bajo: number }[]>([]);
+  const [stats, setStats] = useState({
+    accidentesMes: 0,
+    accidentesPrev: 0,
+    inspeccionesMes: 0,
+    inspeccionesProgramadas: 0,
+    capacitacionesMes: 0,
+    capacitacionesAsistentes: 0,
+    examenesPorVencer: 0,
+  });
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const hoy = new Date();
+      const anio = hoy.getFullYear();
+      const mes = hoy.getMonth();
+      const inicioAnio = new Date(anio, 0, 1).toISOString();
+      const inicioMes = new Date(anio, mes, 1).toISOString();
+      const inicioMesPrev = new Date(anio, mes - 1, 1).toISOString();
+      const en30 = new Date(); en30.setDate(hoy.getDate() + 30);
+
+      const [aciRes, riesgosRes, patRes, capacRes, asistRes, exMesRes, inspMesRes, inspProgRes, accMesPrevRes, exVencRes] = await Promise.all([
+        supabase.from("aci_reportes").select("tipo, fecha_reporte").gte("fecha_reporte", inicioAnio),
+        supabase.from("matriz_riesgos").select("nivel_riesgo, created_at").gte("created_at", inicioAnio),
+        supabase.from("plan_anual_trabajo").select("estado, avance").eq("anio", anio),
+        supabase.from("capacitaciones").select("id, fecha").gte("fecha", inicioMes.split("T")[0]),
+        supabase.from("asistencia").select("id, capacitacion_id, fecha_registro").gte("fecha_registro", inicioMes),
+        supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMes),
+        supabase.from("checklist_ejecuciones").select("id").gte("fecha_ejecucion", inicioMes),
+        supabase.from("plan_anual_trabajo").select("id").eq("anio", anio),
+        supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMesPrev).lt("fecha_reporte", inicioMes),
+        supabase.from("examenes_medicos").select("id").not("fecha_vencimiento", "is", null).lte("fecha_vencimiento", en30.toISOString().split("T")[0]).gte("fecha_vencimiento", hoy.toISOString().split("T")[0]),
+      ]);
+
+      // Accidentes/incidentes por mes (últimos 6 meses)
+      const acc = aciRes.data ?? [];
+      const meses6: { mes: string; accidentes: number; incidentes: number; key: string }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(anio, mes - i, 1);
+        meses6.push({ mes: MESES[d.getMonth()], accidentes: 0, incidentes: 0, key: `${d.getFullYear()}-${d.getMonth()}` });
+      }
+      acc.forEach((r: any) => {
+        const d = new Date(r.fecha_reporte);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const slot = meses6.find(m => m.key === key);
+        if (!slot) return;
+        if (r.tipo === "Accidente") slot.accidentes++;
+        else slot.incidentes++;
+      });
+      setAccidentData(meses6.map(({ key, ...rest }) => rest));
+
+      // Riesgos por mes
+      const riesgos = riesgosRes.data ?? [];
+      const riesgos6: { mes: string; alto: number; medio: number; bajo: number; key: string }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(anio, mes - i, 1);
+        riesgos6.push({ mes: MESES[d.getMonth()], alto: 0, medio: 0, bajo: 0, key: `${d.getFullYear()}-${d.getMonth()}` });
+      }
+      riesgos.forEach((r: any) => {
+        const d = new Date(r.created_at);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const slot = riesgos6.find(m => m.key === key);
+        if (!slot) return;
+        const nv = (r.nivel_riesgo || "").toLowerCase();
+        if (nv === "alto") slot.alto++;
+        else if (nv === "medio") slot.medio++;
+        else slot.bajo++;
+      });
+      setRiskData(riesgos6.map(({ key, ...rest }) => rest));
+
+      // Cumplimiento SG-SST (basado en plan anual)
+      const pat = patRes.data ?? [];
+      const total = pat.length || 1;
+      let cumplido = 0, progreso = 0, pendiente = 0;
+      pat.forEach((p: any) => {
+        const av = p.avance ?? 0;
+        if (av >= 100 || p.estado === "Cumplida" || p.estado === "Cerrada") cumplido++;
+        else if (av > 0 || p.estado === "En progreso") progreso++;
+        else pendiente++;
+      });
+      setComplianceData([
+        { name: "Cumplido", value: Math.round((cumplido / total) * 100), color: "hsl(152, 60%, 40%)" },
+        { name: "En progreso", value: Math.round((progreso / total) * 100), color: "hsl(36, 90%, 55%)" },
+        { name: "Pendiente", value: Math.round((pendiente / total) * 100), color: "hsl(0, 72%, 51%)" },
+      ]);
+
+      const accMes = exMesRes.data?.length ?? 0;
+      const accPrev = accMesPrevRes.data?.length ?? 0;
+      setStats({
+        accidentesMes: accMes,
+        accidentesPrev: accPrev,
+        inspeccionesMes: inspMesRes.data?.length ?? 0,
+        inspeccionesProgramadas: inspProgRes.data?.length ?? 0,
+        capacitacionesMes: capacRes.data?.length ?? 0,
+        capacitacionesAsistentes: asistRes.data?.length ?? 0,
+        examenesPorVencer: exVencRes.data?.length ?? 0,
+      });
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const trendAcc = stats.accidentesPrev > 0
+    ? Math.round(((stats.accidentesMes - stats.accidentesPrev) / stats.accidentesPrev) * 100)
+    : 0;
+
   return (
     <AppLayout title="Dashboard">
       <div className="space-y-6">
@@ -55,28 +165,28 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Accidentes este mes"
-            value={1}
+            value={stats.accidentesMes}
             icon={AlertTriangle}
             variant="destructive"
-            trend={{ value: -50, label: "vs mes anterior" }}
+            trend={{ value: trendAcc, label: "vs mes anterior" }}
           />
           <StatCard
             title="Inspecciones realizadas"
-            value={24}
+            value={stats.inspeccionesMes}
             icon={ClipboardCheck}
             variant="success"
-            subtitle="de 30 programadas"
+            subtitle={`de ${stats.inspeccionesProgramadas} programadas`}
           />
           <StatCard
             title="Capacitaciones"
-            value={8}
+            value={stats.capacitacionesMes}
             icon={GraduationCap}
             variant="info"
-            subtitle="152 asistentes"
+            subtitle={`${stats.capacitacionesAsistentes} asistentes`}
           />
           <StatCard
             title="Exámenes por vencer"
-            value={5}
+            value={stats.examenesPorVencer}
             icon={Stethoscope}
             variant="warning"
             subtitle="próximos 30 días"
