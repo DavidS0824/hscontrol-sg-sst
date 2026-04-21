@@ -17,6 +17,7 @@ interface Examen {
   trabajador_nombre: string;
   trabajador_documento: string | null;
   cargo: string | null;
+  area?: string | null;
   tipo_examen: string;
   aptitud: string;
   restricciones: string | null;
@@ -42,6 +43,8 @@ export default function ExamenesMedicos() {
   const [form, setForm] = useState<Partial<Examen>>({ tipo_examen: "Periódico", aptitud: "Apto" });
   const [ocrLoading, setOcrLoading] = useState(false);
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupHit, setLookupHit] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -55,6 +58,30 @@ export default function ExamenesMedicos() {
 
   const openNew = () => { setEditing(null); setForm({ tipo_examen: "Periódico", aptitud: "Apto", fecha_examen: new Date().toISOString().split("T")[0] }); setArchivo(null); setOpen(true); };
   const openEdit = (e: Examen) => { setEditing(e); setForm(e); setArchivo(null); setOpen(true); };
+
+  const buscarTrabajador = async (documento: string) => {
+    const doc = documento.trim();
+    if (!doc) { setLookupHit(null); return; }
+    setLookupLoading(true);
+    const { data } = await supabase
+      .from("trabajadores")
+      .select("nombre, cargo, area")
+      .eq("documento", doc)
+      .maybeSingle();
+    setLookupLoading(false);
+    if (data) {
+      setForm((prev) => ({
+        ...prev,
+        trabajador_documento: doc,
+        trabajador_nombre: prev.trabajador_nombre || data.nombre,
+        cargo: prev.cargo || data.cargo || "",
+        area: (prev as any).area || data.area || "",
+      }));
+      setLookupHit(`✓ ${data.nombre}`);
+    } else {
+      setLookupHit("Sin coincidencia en maestro");
+    }
+  };
 
   const procesarOCR = async (file: File) => {
     setOcrLoading(true);
@@ -178,8 +205,19 @@ export default function ExamenesMedicos() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
               <div className="sm:col-span-2 space-y-1.5"><Label>Trabajador *</Label><Input value={form.trabajador_nombre || ""} onChange={(e) => setForm({ ...form, trabajador_nombre: e.target.value })} /></div>
-              <div className="space-y-1.5"><Label>Documento</Label><Input value={form.trabajador_documento || ""} onChange={(e) => setForm({ ...form, trabajador_documento: e.target.value })} /></div>
+              <div className="space-y-1.5">
+                <Label>Documento</Label>
+                <Input
+                  value={form.trabajador_documento || ""}
+                  onChange={(e) => { setForm({ ...form, trabajador_documento: e.target.value }); setLookupHit(null); }}
+                  onBlur={(e) => buscarTrabajador(e.target.value)}
+                  placeholder="Autocompleta al salir del campo"
+                />
+                {lookupLoading && <p className="text-xs text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" />Buscando...</p>}
+                {!lookupLoading && lookupHit && <p className={`text-xs ${lookupHit.startsWith("✓") ? "text-emerald-600" : "text-muted-foreground"}`}>{lookupHit}</p>}
+              </div>
               <div className="space-y-1.5"><Label>Cargo</Label><Input value={form.cargo || ""} onChange={(e) => setForm({ ...form, cargo: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Área</Label><Input value={(form as any).area || ""} onChange={(e) => setForm({ ...form, area: e.target.value } as any)} /></div>
               <div className="space-y-1.5"><Label>Tipo</Label>
                 <Select value={form.tipo_examen} onValueChange={(v) => setForm({ ...form, tipo_examen: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
