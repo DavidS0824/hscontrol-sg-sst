@@ -4,6 +4,8 @@ import { AlertasPanel } from "@/components/dashboard/AlertasPanel";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Filter } from "lucide-react";
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -49,6 +51,10 @@ const typeColors: Record<string, string> = {
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
+  const anioActual = new Date().getFullYear();
+  const [anioFiltro, setAnioFiltro] = useState<number>(anioActual);
+  const [sedeFiltro, setSedeFiltro] = useState<string>("__all__");
+  const [sedesDisponibles, setSedesDisponibles] = useState<string[]>([]);
   const [accidentData, setAccidentData] = useState<{ mes: string; accidentes: number; incidentes: number }[]>([]);
   const [complianceData, setComplianceData] = useState<{ name: string; value: number; color: string }[]>([]);
   const [riskData, setRiskData] = useState<{ mes: string; alto: number; medio: number; bajo: number }[]>([]);
@@ -62,28 +68,49 @@ export default function Dashboard() {
     examenesPorVencer: 0,
   });
 
+  // Cargar sedes disponibles (combina trabajadores.sede + áreas usadas en ACI)
+  useEffect(() => {
+    const loadSedes = async () => {
+      const [trabRes, aciRes] = await Promise.all([
+        supabase.from("trabajadores").select("sede").not("sede", "is", null),
+        supabase.from("aci_reportes").select("area").not("area", "is", null),
+      ]);
+      const set = new Set<string>();
+      (trabRes.data ?? []).forEach((r: any) => r.sede && set.add(r.sede));
+      (aciRes.data ?? []).forEach((r: any) => r.area && set.add(r.area));
+      setSedesDisponibles(Array.from(set).sort());
+    };
+    loadSedes();
+  }, []);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       const hoy = new Date();
-      const anio = hoy.getFullYear();
-      const mes = hoy.getMonth();
+      const anio = anioFiltro;
+      const esAnioActual = anio === hoy.getFullYear();
+      const mes = esAnioActual ? hoy.getMonth() : 11; // si es año pasado, terminamos en diciembre
       const inicioAnio = new Date(anio, 0, 1).toISOString();
+      const finAnio = new Date(anio + 1, 0, 1).toISOString();
       const inicioMes = new Date(anio, mes, 1).toISOString();
+      const finMes = new Date(anio, mes + 1, 1).toISOString();
       const inicioMesPrev = new Date(anio, mes - 1, 1).toISOString();
       const en30 = new Date(); en30.setDate(hoy.getDate() + 30);
+      const sede = sedeFiltro === "__all__" ? null : sedeFiltro;
+
+      const aplicarSede = (q: any, col = "area") => sede ? q.eq(col, sede) : q;
 
       const [aciRes, riesgosRes, patRes, capacRes, asistRes, exMesRes, inspMesRes, inspProgRes, accMesPrevRes, exVencRes] = await Promise.all([
-        supabase.from("aci_reportes").select("tipo, fecha_reporte").gte("fecha_reporte", inicioAnio),
-        supabase.from("matriz_riesgos").select("nivel_riesgo, created_at").gte("created_at", inicioAnio),
+        aplicarSede(supabase.from("aci_reportes").select("tipo, fecha_reporte").gte("fecha_reporte", inicioAnio).lt("fecha_reporte", finAnio)),
+        aplicarSede(supabase.from("matriz_riesgos").select("nivel_riesgo, created_at").gte("created_at", inicioAnio).lt("created_at", finAnio)),
         supabase.from("plan_anual_trabajo").select("estado, avance").eq("anio", anio),
-        supabase.from("capacitaciones").select("id, fecha").gte("fecha", inicioMes.split("T")[0]),
-        supabase.from("asistencia").select("id, capacitacion_id, fecha_registro").gte("fecha_registro", inicioMes),
-        supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMes),
-        supabase.from("checklist_ejecuciones").select("id").gte("fecha_ejecucion", inicioMes),
+        supabase.from("capacitaciones").select("id, fecha").gte("fecha", inicioMes.split("T")[0]).lt("fecha", finMes.split("T")[0]),
+        supabase.from("asistencia").select("id, capacitacion_id, fecha_registro").gte("fecha_registro", inicioMes).lt("fecha_registro", finMes),
+        aplicarSede(supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMes).lt("fecha_reporte", finMes)),
+        aplicarSede(supabase.from("checklist_ejecuciones").select("id").gte("fecha_ejecucion", inicioMes).lt("fecha_ejecucion", finMes)),
         supabase.from("plan_anual_trabajo").select("id").eq("anio", anio),
-        supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMesPrev).lt("fecha_reporte", inicioMes),
-        supabase.from("examenes_medicos").select("id").not("fecha_vencimiento", "is", null).lte("fecha_vencimiento", en30.toISOString().split("T")[0]).gte("fecha_vencimiento", hoy.toISOString().split("T")[0]),
+        aplicarSede(supabase.from("aci_reportes").select("id").eq("tipo", "Accidente").gte("fecha_reporte", inicioMesPrev).lt("fecha_reporte", inicioMes)),
+        aplicarSede(supabase.from("examenes_medicos").select("id").not("fecha_vencimiento", "is", null).lte("fecha_vencimiento", en30.toISOString().split("T")[0]).gte("fecha_vencimiento", hoy.toISOString().split("T")[0])),
       ]);
 
       // Accidentes/incidentes por mes (últimos 6 meses)
@@ -152,7 +179,7 @@ export default function Dashboard() {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [anioFiltro, sedeFiltro]);
 
   const trendAcc = stats.accidentesPrev > 0
     ? Math.round(((stats.accidentesMes - stats.accidentesPrev) / stats.accidentesPrev) * 100)
@@ -161,6 +188,41 @@ export default function Dashboard() {
   return (
     <AppLayout title="Dashboard">
       <div className="space-y-6">
+        {/* Filtros */}
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-card p-4 shadow-card">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Filter className="h-4 w-4" />
+            <span className="font-medium">Filtros:</span>
+          </div>
+          <Select value={String(anioFiltro)} onValueChange={(v) => setAnioFiltro(Number(v))}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Año" />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 5 }).map((_, i) => {
+                const a = anioActual - i;
+                return <SelectItem key={a} value={String(a)}>{a}</SelectItem>;
+              })}
+            </SelectContent>
+          </Select>
+          <Select value={sedeFiltro} onValueChange={setSedeFiltro}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Sede / Área" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Todas las sedes</SelectItem>
+              {sedesDisponibles.map(s => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {sedeFiltro !== "__all__" && (
+            <span className="text-xs text-muted-foreground ml-auto">
+              * Capacitaciones y Plan Anual no se filtran por sede
+            </span>
+          )}
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
