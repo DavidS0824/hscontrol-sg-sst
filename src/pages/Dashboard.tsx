@@ -1,5 +1,6 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { AlertasPanel } from "@/components/dashboard/AlertasPanel";
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -100,6 +101,9 @@ export default function Dashboard() {
             subtitle="próximos 30 días"
           />
         </div>
+
+        {/* Panel de Alertas */}
+        <AlertasPanel />
 
         {/* Charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
