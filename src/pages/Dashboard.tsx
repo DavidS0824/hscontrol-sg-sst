@@ -1,6 +1,9 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { AlertasPanel } from "@/components/dashboard/AlertasPanel";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -27,29 +30,7 @@ import {
   Legend,
 } from "recharts";
 
-const accidentData = [
-  { mes: "Ene", accidentes: 3, incidentes: 5 },
-  { mes: "Feb", accidentes: 2, incidentes: 4 },
-  { mes: "Mar", accidentes: 1, incidentes: 6 },
-  { mes: "Abr", accidentes: 4, incidentes: 3 },
-  { mes: "May", accidentes: 2, incidentes: 7 },
-  { mes: "Jun", accidentes: 1, incidentes: 2 },
-];
-
-const complianceData = [
-  { name: "Cumplido", value: 72, color: "hsl(152, 60%, 40%)" },
-  { name: "En progreso", value: 18, color: "hsl(36, 90%, 55%)" },
-  { name: "Pendiente", value: 10, color: "hsl(0, 72%, 51%)" },
-];
-
-const riskData = [
-  { mes: "Ene", alto: 5, medio: 12, bajo: 20 },
-  { mes: "Feb", alto: 4, medio: 10, bajo: 22 },
-  { mes: "Mar", alto: 3, medio: 11, bajo: 25 },
-  { mes: "Abr", alto: 3, medio: 9, bajo: 23 },
-  { mes: "May", alto: 2, medio: 8, bajo: 27 },
-  { mes: "Jun", alto: 2, medio: 7, bajo: 28 },
-];
+const MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
 const recentActivities = [
   { text: "Inspección completada - Área de producción", time: "Hace 2h", type: "success" as const },
