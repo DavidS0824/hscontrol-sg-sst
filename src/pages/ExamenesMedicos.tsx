@@ -205,8 +205,19 @@ export default function ExamenesMedicos() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
               <div className="sm:col-span-2 space-y-1.5"><Label>Trabajador *</Label><Input value={form.trabajador_nombre || ""} onChange={(e) => setForm({ ...form, trabajador_nombre: e.target.value })} /></div>
-              <div className="space-y-1.5"><Label>Documento</Label><Input value={form.trabajador_documento || ""} onChange={(e) => setForm({ ...form, trabajador_documento: e.target.value })} /></div>
+              <div className="space-y-1.5">
+                <Label>Documento</Label>
+                <Input
+                  value={form.trabajador_documento || ""}
+                  onChange={(e) => { setForm({ ...form, trabajador_documento: e.target.value }); setLookupHit(null); }}
+                  onBlur={(e) => buscarTrabajador(e.target.value)}
+                  placeholder="Autocompleta al salir del campo"
+                />
+                {lookupLoading && <p className="text-xs text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" />Buscando...</p>}
+                {!lookupLoading && lookupHit && <p className={`text-xs ${lookupHit.startsWith("✓") ? "text-emerald-600" : "text-muted-foreground"}`}>{lookupHit}</p>}
+              </div>
               <div className="space-y-1.5"><Label>Cargo</Label><Input value={form.cargo || ""} onChange={(e) => setForm({ ...form, cargo: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>Área</Label><Input value={(form as any).area || ""} onChange={(e) => setForm({ ...form, area: e.target.value } as any)} /></div>
               <div className="space-y-1.5"><Label>Tipo</Label>
                 <Select value={form.tipo_examen} onValueChange={(v) => setForm({ ...form, tipo_examen: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
