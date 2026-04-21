@@ -43,6 +43,8 @@ export default function ExamenesMedicos() {
   const [form, setForm] = useState<Partial<Examen>>({ tipo_examen: "Periódico", aptitud: "Apto" });
   const [ocrLoading, setOcrLoading] = useState(false);
   const [archivo, setArchivo] = useState<File | null>(null);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupHit, setLookupHit] = useState<string | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -56,6 +58,30 @@ export default function ExamenesMedicos() {
 
   const openNew = () => { setEditing(null); setForm({ tipo_examen: "Periódico", aptitud: "Apto", fecha_examen: new Date().toISOString().split("T")[0] }); setArchivo(null); setOpen(true); };
   const openEdit = (e: Examen) => { setEditing(e); setForm(e); setArchivo(null); setOpen(true); };
+
+  const buscarTrabajador = async (documento: string) => {
+    const doc = documento.trim();
+    if (!doc) { setLookupHit(null); return; }
+    setLookupLoading(true);
+    const { data } = await supabase
+      .from("trabajadores")
+      .select("nombre, cargo, area")
+      .eq("documento", doc)
+      .maybeSingle();
+    setLookupLoading(false);
+    if (data) {
+      setForm((prev) => ({
+        ...prev,
+        trabajador_documento: doc,
+        trabajador_nombre: prev.trabajador_nombre || data.nombre,
+        cargo: prev.cargo || data.cargo || "",
+        area: (prev as any).area || data.area || "",
+      }));
+      setLookupHit(`✓ ${data.nombre}`);
+    } else {
+      setLookupHit("Sin coincidencia en maestro");
+    }
+  };
 
   const procesarOCR = async (file: File) => {
     setOcrLoading(true);
