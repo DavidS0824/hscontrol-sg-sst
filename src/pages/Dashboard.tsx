@@ -201,6 +201,7 @@ export default function Dashboard() {
           {/* Accident chart */}
           <div className="lg:col-span-2 rounded-xl bg-card p-5 shadow-card">
             <h3 className="text-sm font-semibold text-card-foreground mb-4">Accidentalidad e Incidentes</h3>
+            {loading ? <Skeleton className="h-[260px] w-full" /> : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={accidentData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(210,15%,90%)" />
@@ -211,11 +212,13 @@ export default function Dashboard() {
                 <Bar dataKey="incidentes" name="Incidentes" fill="hsl(36,90%,55%)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}
           </div>
 
           {/* Compliance pie */}
           <div className="rounded-xl bg-card p-5 shadow-card">
             <h3 className="text-sm font-semibold text-card-foreground mb-4">Cumplimiento SG-SST</h3>
+            {loading ? <Skeleton className="h-[200px] w-full" /> : (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie data={complianceData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value" paddingAngle={3}>
@@ -226,6 +229,7 @@ export default function Dashboard() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            )}
             <div className="flex justify-center gap-4 mt-2">
               {complianceData.map((d) => (
                 <div key={d.name} className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -241,6 +245,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 rounded-xl bg-card p-5 shadow-card">
             <h3 className="text-sm font-semibold text-card-foreground mb-4">Tendencia de Riesgos</h3>
+            {loading ? <Skeleton className="h-[240px] w-full" /> : (
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={riskData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(210,15%,90%)" />
@@ -253,6 +258,7 @@ export default function Dashboard() {
                 <Line type="monotone" dataKey="bajo" name="Bajo" stroke="hsl(152,60%,40%)" strokeWidth={2} dot={{ r: 3 }} />
               </LineChart>
             </ResponsiveContainer>
+            )}
           </div>
 
           <div className="rounded-xl bg-card p-5 shadow-card">
