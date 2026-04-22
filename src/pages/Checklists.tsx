@@ -119,7 +119,7 @@ export default function Checklists() {
       observaciones: formE.observaciones || null,
       porcentaje_cumplimiento: porcentaje,
       estado: "Completado",
-    }).select().single();
+    } as any).select().single();
     if (error || !ejec) { setSaving(false); toast({ title: "Error", description: error?.message, variant: "destructive" }); return; }
 
     const respPayload = runItems.map(i => ({
