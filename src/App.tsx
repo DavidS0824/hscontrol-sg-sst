@@ -28,6 +28,7 @@ import NotFound from "./pages/NotFound";
 import Trabajadores from "./pages/Trabajadores";
 import TrabajadorPerfil from "./pages/TrabajadorPerfil";
 import AnaliticaIA from "./pages/AnaliticaIA";
+import SuperAdmin from "./pages/SuperAdmin";
 import { InstallPWA } from "./components/InstallPWA";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,7 @@ const AppRoutes = () => (
     <Route path="/trabajadores" element={<ProtectedRoute><Trabajadores /></ProtectedRoute>} />
     <Route path="/trabajadores/:id" element={<ProtectedRoute><TrabajadorPerfil /></ProtectedRoute>} />
     <Route path="/analitica-ia" element={<ProtectedRoute><AnaliticaIA /></ProtectedRoute>} />
+    <Route path="/super-admin" element={<ProtectedRoute><SuperAdmin /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
