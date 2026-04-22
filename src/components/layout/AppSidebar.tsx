@@ -21,6 +21,8 @@ import {
   Brain,
   ChevronLeft,
   LogOut,
+  Building2,
+  Crown,
 } from "lucide-react";
 import logoHSControl from "@/assets/logo-hscontrol.jpeg";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,27 +41,27 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const modules = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Análisis IA", url: "/analitica-ia", icon: Brain },
-  { title: "Trabajadores", url: "/trabajadores", icon: Users },
-  { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert },
-  { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange },
-  { title: "Reporte ACI", url: "/reporte-aci", icon: Camera },
-  { title: "Permisos de Trabajo", url: "/permisos-trabajo", icon: HardHat },
-  { title: "Checklists", url: "/checklists", icon: ListChecks },
-  { title: "Plan de Emergencias", url: "/plan-emergencias", icon: Siren },
-  { title: "Asistente IA", url: "/asistente-ia", icon: Bot },
-  { title: "Generador Docs IA", url: "/generador-documentos", icon: FileSignature },
-  { title: "Exámenes (OCR IA)", url: "/examenes-medicos", icon: ScanLine },
-  { title: "Accidentes", url: "/accidentes", icon: AlertTriangle },
-  { title: "Inspecciones", url: "/inspecciones", icon: ClipboardCheck },
-  { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap },
-  { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope },
-  { title: "Documentos", url: "/documentos", icon: FileText },
-  { title: "Autoevaluación 0312", url: "/autoevaluacion", icon: ClipboardList },
-  { title: "Plan de Mejoramiento", url: "/plan-mejoramiento", icon: TrendingUp },
-  { title: "Alertas", url: "/alertas", icon: Bell },
+const modules: { title: string; url: string; icon: any; key: string }[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, key: "dashboard" },
+  { title: "Análisis IA", url: "/analitica-ia", icon: Brain, key: "analitica-ia" },
+  { title: "Trabajadores", url: "/trabajadores", icon: Users, key: "trabajadores" },
+  { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert, key: "matriz-riesgos" },
+  { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange, key: "plan-anual" },
+  { title: "Reporte ACI", url: "/reporte-aci", icon: Camera, key: "reporte-aci" },
+  { title: "Permisos de Trabajo", url: "/permisos-trabajo", icon: HardHat, key: "permisos-trabajo" },
+  { title: "Checklists", url: "/checklists", icon: ListChecks, key: "checklists" },
+  { title: "Plan de Emergencias", url: "/plan-emergencias", icon: Siren, key: "plan-emergencias" },
+  { title: "Asistente IA", url: "/asistente-ia", icon: Bot, key: "asistente-ia" },
+  { title: "Generador Docs IA", url: "/generador-documentos", icon: FileSignature, key: "generador-documentos" },
+  { title: "Exámenes (OCR IA)", url: "/examenes-medicos", icon: ScanLine, key: "examenes-medicos" },
+  { title: "Accidentes", url: "/accidentes", icon: AlertTriangle, key: "accidentes" },
+  { title: "Inspecciones", url: "/inspecciones", icon: ClipboardCheck, key: "inspecciones" },
+  { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap, key: "capacitaciones" },
+  { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope, key: "examenes" },
+  { title: "Documentos", url: "/documentos", icon: FileText, key: "documentos" },
+  { title: "Autoevaluación 0312", url: "/autoevaluacion", icon: ClipboardList, key: "autoevaluacion" },
+  { title: "Plan de Mejoramiento", url: "/plan-mejoramiento", icon: TrendingUp, key: "plan-mejoramiento" },
+  { title: "Alertas", url: "/alertas", icon: Bell, key: "alertas" },
 ];
 
 export function AppSidebar() {
