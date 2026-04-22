@@ -20,6 +20,7 @@ export type Database = {
           area: string | null
           created_at: string
           descripcion: string
+          empresa_id: string
           estado: string
           fecha_cierre: string | null
           fecha_reporte: string
@@ -37,6 +38,7 @@ export type Database = {
           area?: string | null
           created_at?: string
           descripcion: string
+          empresa_id: string
           estado?: string
           fecha_cierre?: string | null
           fecha_reporte?: string
@@ -54,6 +56,7 @@ export type Database = {
           area?: string | null
           created_at?: string
           descripcion?: string
+          empresa_id?: string
           estado?: string
           fecha_cierre?: string | null
           fecha_reporte?: string
@@ -109,6 +112,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           criterio: string | null
+          empresa_id: string
           estandar: string
           evidencia: string | null
           id: string
@@ -124,6 +128,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           criterio?: string | null
+          empresa_id: string
           estandar: string
           evidencia?: string | null
           id?: string
@@ -139,6 +144,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           criterio?: string | null
+          empresa_id?: string
           estandar?: string
           evidencia?: string | null
           id?: string
@@ -155,6 +161,7 @@ export type Database = {
           created_by: string | null
           descripcion: string | null
           duracion: string
+          empresa_id: string
           estado: string
           fecha: string
           id: string
@@ -169,6 +176,7 @@ export type Database = {
           created_by?: string | null
           descripcion?: string | null
           duracion: string
+          empresa_id: string
           estado?: string
           fecha: string
           id?: string
@@ -183,6 +191,7 @@ export type Database = {
           created_by?: string | null
           descripcion?: string | null
           duracion?: string
+          empresa_id?: string
           estado?: string
           fecha?: string
           id?: string
@@ -231,6 +240,7 @@ export type Database = {
           created_at: string
           ejecutado_por: string | null
           ejecutado_por_nombre: string | null
+          empresa_id: string
           estado: string
           fecha_ejecucion: string
           id: string
@@ -244,6 +254,7 @@ export type Database = {
           created_at?: string
           ejecutado_por?: string | null
           ejecutado_por_nombre?: string | null
+          empresa_id: string
           estado?: string
           fecha_ejecucion?: string
           id?: string
@@ -257,6 +268,7 @@ export type Database = {
           created_at?: string
           ejecutado_por?: string | null
           ejecutado_por_nombre?: string | null
+          empresa_id?: string
           estado?: string
           fecha_ejecucion?: string
           id?: string
@@ -317,6 +329,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           descripcion: string | null
+          empresa_id: string
           id: string
           nombre: string
           updated_at: string
@@ -327,6 +340,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion?: string | null
+          empresa_id: string
           id?: string
           nombre: string
           updated_at?: string
@@ -337,6 +351,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion?: string | null
+          empresa_id?: string
           id?: string
           nombre?: string
           updated_at?: string
@@ -385,6 +400,100 @@ export type Database = {
           },
         ]
       }
+      empresa_usuarios: {
+        Row: {
+          created_at: string
+          empresa_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          empresa_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          empresa_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresa_usuarios_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresas: {
+        Row: {
+          ciudad: string | null
+          contacto_email: string | null
+          contacto_nombre: string | null
+          contacto_telefono: string | null
+          created_at: string
+          created_by: string | null
+          direccion: string | null
+          estado: string
+          fecha_inicio: string
+          fecha_vencimiento: string | null
+          id: string
+          nit: string | null
+          nombre: string
+          notas: string | null
+          plan_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ciudad?: string | null
+          contacto_email?: string | null
+          contacto_nombre?: string | null
+          contacto_telefono?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          estado?: string
+          fecha_inicio?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          nit?: string | null
+          nombre: string
+          notas?: string | null
+          plan_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ciudad?: string | null
+          contacto_email?: string | null
+          contacto_nombre?: string | null
+          contacto_telefono?: string | null
+          created_at?: string
+          created_by?: string | null
+          direccion?: string | null
+          estado?: string
+          fecha_inicio?: string
+          fecha_vencimiento?: string | null
+          id?: string
+          nit?: string | null
+          nombre?: string
+          notas?: string | null
+          plan_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresas_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "planes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evaluaciones: {
         Row: {
           aprobado: boolean | null
@@ -429,6 +538,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           datos_extraidos: Json | null
+          empresa_id: string
           fecha_examen: string
           fecha_vencimiento: string | null
           id: string
@@ -450,6 +560,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           datos_extraidos?: Json | null
+          empresa_id: string
           fecha_examen?: string
           fecha_vencimiento?: string | null
           id?: string
@@ -471,6 +582,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           datos_extraidos?: Json | null
+          empresa_id?: string
           fecha_examen?: string
           fecha_vencimiento?: string | null
           id?: string
@@ -532,6 +644,7 @@ export type Database = {
           controles_propuestos: string | null
           created_at: string
           created_by: string | null
+          empresa_id: string
           estado: string
           fecha_revision: string | null
           id: string
@@ -549,6 +662,7 @@ export type Database = {
           controles_propuestos?: string | null
           created_at?: string
           created_by?: string | null
+          empresa_id: string
           estado?: string
           fecha_revision?: string | null
           id?: string
@@ -566,6 +680,7 @@ export type Database = {
           controles_propuestos?: string | null
           created_at?: string
           created_by?: string | null
+          empresa_id?: string
           estado?: string
           fecha_revision?: string | null
           id?: string
@@ -587,6 +702,7 @@ export type Database = {
           created_by: string | null
           descripcion_tarea: string
           ejecutores: string | null
+          empresa_id: string
           epp_requerido: string | null
           estado: string
           fecha_aprobacion: string | null
@@ -607,6 +723,7 @@ export type Database = {
           created_by?: string | null
           descripcion_tarea: string
           ejecutores?: string | null
+          empresa_id: string
           epp_requerido?: string | null
           estado?: string
           fecha_aprobacion?: string | null
@@ -627,6 +744,7 @@ export type Database = {
           created_by?: string | null
           descripcion_tarea?: string
           ejecutores?: string | null
+          empresa_id?: string
           epp_requerido?: string | null
           estado?: string
           fecha_aprobacion?: string | null
@@ -648,6 +766,7 @@ export type Database = {
           avance: number
           created_at: string
           created_by: string | null
+          empresa_id: string
           estado: string
           evidencias: string | null
           fecha_fin: string | null
@@ -665,6 +784,7 @@ export type Database = {
           avance?: number
           created_at?: string
           created_by?: string | null
+          empresa_id: string
           estado?: string
           evidencias?: string | null
           fecha_fin?: string | null
@@ -682,6 +802,7 @@ export type Database = {
           avance?: number
           created_at?: string
           created_by?: string | null
+          empresa_id?: string
           estado?: string
           evidencias?: string | null
           fecha_fin?: string | null
@@ -701,6 +822,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           descripcion: string | null
+          empresa_id: string
           estado: string
           fecha: string | null
           id: string
@@ -717,6 +839,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion?: string | null
+          empresa_id: string
           estado?: string
           fecha?: string | null
           id?: string
@@ -733,6 +856,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           descripcion?: string | null
+          empresa_id?: string
           estado?: string
           fecha?: string | null
           id?: string
@@ -752,6 +876,7 @@ export type Database = {
           created_by: string | null
           descripcion: string
           eficacia: string | null
+          empresa_id: string
           estado: string
           fecha_cierre: string | null
           fecha_identificacion: string
@@ -768,6 +893,7 @@ export type Database = {
           created_by?: string | null
           descripcion: string
           eficacia?: string | null
+          empresa_id: string
           estado?: string
           fecha_cierre?: string | null
           fecha_identificacion?: string
@@ -784,6 +910,7 @@ export type Database = {
           created_by?: string | null
           descripcion?: string
           eficacia?: string | null
+          empresa_id?: string
           estado?: string
           fecha_cierre?: string | null
           fecha_identificacion?: string
@@ -793,6 +920,48 @@ export type Database = {
           origen_hallazgo?: string
           responsable?: string | null
           tipo_accion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      planes: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          id: string
+          max_trabajadores: number
+          max_usuarios: number
+          modulos: Json
+          nombre: string
+          orden: number
+          precio: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          max_trabajadores?: number
+          max_usuarios?: number
+          modulos?: Json
+          nombre: string
+          orden?: number
+          precio?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          max_trabajadores?: number
+          max_usuarios?: number
+          modulos?: Json
+          nombre?: string
+          orden?: number
+          precio?: number
           updated_at?: string
         }
         Relationships: []
@@ -840,6 +1009,7 @@ export type Database = {
           created_by: string | null
           direccion: string | null
           documento: string
+          empresa_id: string
           eps: string | null
           estado: string
           fecha_ingreso: string | null
@@ -865,6 +1035,7 @@ export type Database = {
           created_by?: string | null
           direccion?: string | null
           documento: string
+          empresa_id: string
           eps?: string | null
           estado?: string
           fecha_ingreso?: string | null
@@ -890,6 +1061,7 @@ export type Database = {
           created_by?: string | null
           direccion?: string | null
           documento?: string
+          empresa_id?: string
           eps?: string | null
           estado?: string
           fecha_ingreso?: string | null
@@ -931,6 +1103,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_empresa: { Args: { _user_id: string }; Returns: string }
+      has_module_access: {
+        Args: { _module: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -938,6 +1115,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "visualizador" | "participante" | "super_admin"
