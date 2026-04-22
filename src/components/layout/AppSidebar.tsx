@@ -68,7 +68,8 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, hasModule, isSuperAdmin, empresa } = useAuth();
+  const visible = modules.filter((m) => hasModule(m.key));
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -92,7 +93,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {modules.map((item) => {
+              {visible.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -117,6 +118,22 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 );
               })}
+              {isSuperAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip="Super Admin"
+                    className={location.pathname.startsWith("/super-admin")
+                      ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}
+                  >
+                    <NavLink to="/super-admin" activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold">
+                      <Crown className="h-4 w-4" />
+                      {!collapsed && <span>Super Admin</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -125,6 +142,15 @@ export function AppSidebar() {
       <SidebarFooter className="p-3 space-y-2">
         {!collapsed && (
           <>
+            {empresa && (
+              <div className="flex items-start gap-2 px-1 pb-2 border-b border-sidebar-border/40">
+                <Building2 className="h-3.5 w-3.5 mt-0.5 text-sidebar-foreground/60" />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[11px] font-semibold text-sidebar-foreground/80 truncate max-w-[140px]">{empresa.nombre}</span>
+                  <span className="text-[10px] text-sidebar-foreground/50">Plan {empresa.plan?.nombre || "—"}</span>
+                </div>
+              </div>
+            )}
             <button
               onClick={() => signOut()}
               className="flex items-center gap-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground/80 transition-colors"
