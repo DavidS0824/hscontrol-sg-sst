@@ -23,6 +23,13 @@ import {
   LogOut,
   Building2,
   Crown,
+  Home,
+  ShieldCheck,
+  Activity,
+  CalendarCheck,
+  Sparkles,
+  FolderOpen,
+  ChevronDown,
 } from "lucide-react";
 import logoHSControl from "@/assets/logo-hscontrol.jpeg";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,6 +40,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -40,28 +48,85 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
-const modules: { title: string; url: string; icon: any; key: string }[] = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard, key: "dashboard" },
-  { title: "Análisis IA", url: "/analitica-ia", icon: Brain, key: "analitica-ia" },
-  { title: "Trabajadores", url: "/trabajadores", icon: Users, key: "trabajadores" },
-  { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert, key: "matriz-riesgos" },
-  { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange, key: "plan-anual" },
-  { title: "Reporte ACI", url: "/reporte-aci", icon: Camera, key: "reporte-aci" },
-  { title: "Permisos de Trabajo", url: "/permisos-trabajo", icon: HardHat, key: "permisos-trabajo" },
-  { title: "Checklists", url: "/checklists", icon: ListChecks, key: "checklists" },
-  { title: "Plan de Emergencias", url: "/plan-emergencias", icon: Siren, key: "plan-emergencias" },
-  { title: "Asistente IA", url: "/asistente-ia", icon: Bot, key: "asistente-ia" },
-  { title: "Generador Docs IA", url: "/generador-documentos", icon: FileSignature, key: "generador-documentos" },
-  { title: "Exámenes (OCR IA)", url: "/examenes-medicos", icon: ScanLine, key: "examenes-medicos" },
-  { title: "Accidentes", url: "/accidentes", icon: AlertTriangle, key: "accidentes" },
-  { title: "Inspecciones", url: "/inspecciones", icon: ClipboardCheck, key: "inspecciones" },
-  { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap, key: "capacitaciones" },
-  { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope, key: "examenes" },
-  { title: "Documentos", url: "/documentos", icon: FileText, key: "documentos" },
-  { title: "Autoevaluación 0312", url: "/autoevaluacion", icon: ClipboardList, key: "autoevaluacion" },
-  { title: "Plan de Mejoramiento", url: "/plan-mejoramiento", icon: TrendingUp, key: "plan-mejoramiento" },
-  { title: "Alertas", url: "/alertas", icon: Bell, key: "alertas" },
+type ModuleItem = { title: string; url: string; icon: any; key: string };
+type ModuleGroup = { id: string; label: string; icon: any; items: ModuleItem[] };
+
+const moduleGroups: ModuleGroup[] = [
+  {
+    id: "inicio",
+    label: "Inicio",
+    icon: Home,
+    items: [
+      { title: "Dashboard", url: "/", icon: LayoutDashboard, key: "dashboard" },
+      { title: "Análisis IA", url: "/analitica-ia", icon: Brain, key: "analitica-ia" },
+    ],
+  },
+  {
+    id: "personal",
+    label: "Gestión de Personal",
+    icon: Users,
+    items: [
+      { title: "Trabajadores", url: "/trabajadores", icon: Users, key: "trabajadores" },
+      { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap, key: "capacitaciones" },
+      { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope, key: "examenes" },
+      { title: "Exámenes (OCR IA)", url: "/examenes-medicos", icon: ScanLine, key: "examenes-medicos" },
+    ],
+  },
+  {
+    id: "riesgos",
+    label: "Identificación de Riesgos",
+    icon: ShieldCheck,
+    items: [
+      { title: "Matriz de Riesgos", url: "/matriz-riesgos", icon: ShieldAlert, key: "matriz-riesgos" },
+      { title: "Reporte ACI", url: "/reporte-aci", icon: Camera, key: "reporte-aci" },
+      { title: "Inspecciones", url: "/inspecciones", icon: ClipboardCheck, key: "inspecciones" },
+      { title: "Checklists", url: "/checklists", icon: ListChecks, key: "checklists" },
+    ],
+  },
+  {
+    id: "operacion",
+    label: "Operación Diaria",
+    icon: Activity,
+    items: [
+      { title: "Permisos de Trabajo", url: "/permisos-trabajo", icon: HardHat, key: "permisos-trabajo" },
+      { title: "Accidentes", url: "/accidentes", icon: AlertTriangle, key: "accidentes" },
+      { title: "Plan de Emergencias", url: "/plan-emergencias", icon: Siren, key: "plan-emergencias" },
+    ],
+  },
+  {
+    id: "planeacion",
+    label: "Planeación SG-SST",
+    icon: CalendarCheck,
+    items: [
+      { title: "Plan Anual (PAT)", url: "/plan-anual", icon: CalendarRange, key: "plan-anual" },
+      { title: "Autoevaluación 0312", url: "/autoevaluacion", icon: ClipboardList, key: "autoevaluacion" },
+      { title: "Plan de Mejoramiento", url: "/plan-mejoramiento", icon: TrendingUp, key: "plan-mejoramiento" },
+    ],
+  },
+  {
+    id: "ia",
+    label: "Herramientas IA",
+    icon: Sparkles,
+    items: [
+      { title: "Asistente IA", url: "/asistente-ia", icon: Bot, key: "asistente-ia" },
+      { title: "Generador Docs IA", url: "/generador-documentos", icon: FileSignature, key: "generador-documentos" },
+    ],
+  },
+  {
+    id: "documentacion",
+    label: "Documentación y Alertas",
+    icon: FolderOpen,
+    items: [
+      { title: "Documentos", url: "/documentos", icon: FileText, key: "documentos" },
+      { title: "Alertas", url: "/alertas", icon: Bell, key: "alertas" },
+    ],
+  },
 ];
 
 export function AppSidebar() {
@@ -69,7 +134,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { signOut, hasModule, isSuperAdmin, empresa } = useAuth();
-  const visible = modules.filter((m) => hasModule(m.key));
+  const visibleGroups = moduleGroups
+    .map((g) => ({ ...g, items: g.items.filter((i) => hasModule(i.key)) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -90,53 +157,134 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {visible.map((item) => {
-                const isActive = location.pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      className={
-                        isActive
+        {visibleGroups.map((group) => {
+          const groupActive = group.items.some((i) =>
+            i.url === "/" ? location.pathname === "/" : location.pathname === i.url
+          );
+          // When collapsed, render flat icons (no collapsible UI)
+          if (collapsed) {
+            return (
+              <SidebarGroup key={group.id}>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => {
+                      const isActive = item.url === "/"
+                        ? location.pathname === "/"
+                        : location.pathname === item.url;
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            asChild
+                            tooltip={item.title}
+                            className={
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            }
+                          >
+                            <NavLink
+                              to={item.url}
+                              end={item.url === "/"}
+                              activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                            >
+                              <item.icon className="h-4 w-4" />
+                            </NavLink>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+          return (
+            <Collapsible key={group.id} defaultOpen={groupActive} className="group/collapsible">
+              <SidebarGroup className="py-1">
+                <CollapsibleTrigger asChild>
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors uppercase text-[10px] tracking-wider font-semibold">
+                    <span className="flex items-center gap-2">
+                      <group.icon className="h-3.5 w-3.5" />
+                      {group.label}
+                    </span>
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
+                  </SidebarGroupLabel>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {group.items.map((item) => {
+                        const isActive = item.url === "/"
+                          ? location.pathname === "/"
+                          : location.pathname === item.url;
+                        return (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                              asChild
+                              tooltip={item.title}
+                              className={
+                                isActive
+                                  ? "bg-sidebar-accent text-sidebar-primary font-semibold"
+                                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                              }
+                            >
+                              <NavLink
+                                to={item.url}
+                                end={item.url === "/"}
+                                activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                              >
+                                <item.icon className="h-4 w-4" />
+                                <span>{item.title}</span>
+                              </NavLink>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      })}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+          );
+        })}
+
+        {isSuperAdmin && (
+          <Collapsible defaultOpen={location.pathname.startsWith("/super-admin")} className="group/collapsible">
+            <SidebarGroup className="py-1">
+              {!collapsed ? (
+                <CollapsibleTrigger asChild>
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors uppercase text-[10px] tracking-wider font-semibold">
+                    <span className="flex items-center gap-2">
+                      <Crown className="h-3.5 w-3.5" />
+                      Administración
+                    </span>
+                    <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=closed]/collapsible:-rotate-90" />
+                  </SidebarGroupLabel>
+                </CollapsibleTrigger>
+              ) : null}
+              <CollapsibleContent forceMount={collapsed ? true : undefined}>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        tooltip="Super Admin"
+                        className={location.pathname.startsWith("/super-admin")
                           ? "bg-sidebar-accent text-sidebar-primary font-semibold"
-                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      }
-                    >
-                      <NavLink
-                        to={item.url}
-                        end={item.url === "/"}
-                        activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}
                       >
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-              {isSuperAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip="Super Admin"
-                    className={location.pathname.startsWith("/super-admin")
-                      ? "bg-sidebar-accent text-sidebar-primary font-semibold"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}
-                  >
-                    <NavLink to="/super-admin" activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold">
-                      <Crown className="h-4 w-4" />
-                      {!collapsed && <span>Super Admin</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                        <NavLink to="/super-admin" activeClassName="bg-sidebar-accent text-sidebar-primary font-semibold">
+                          <Crown className="h-4 w-4" />
+                          {!collapsed && <span>Super Admin</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </CollapsibleContent>
+            </SidebarGroup>
+          </Collapsible>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
