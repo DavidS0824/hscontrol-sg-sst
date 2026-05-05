@@ -45,30 +45,48 @@ export default function Login() {
     }
     setLoading(true);
 
-    // Validar que la empresa existe y está activa
-    const { data: empData, error: empError } = await supabase
+    // Primero hacer login con Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError || !authData.user) {
+      toast({ title: "Error al iniciar sesión", description: authError?.message ?? "Credenciales incorrectas.", variant: "destructive" });
+      setLoading(false);
+      return;
+    }
+
+    // Verificar si es super_admin → acceso directo sin validar empresa
+    const { data: superRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", authData.user.id)
+      .eq("role", "super_admin")
+      .maybeSingle();
+
+    if (superRole) {
+      setLoading(false);
+      return;
+    }
+
+    // No es super admin → validar empresa
+    const { data: empData } = await supabase
       .from("empresas")
       .select("id, nombre, estado")
       .ilike("nombre", empresa.trim())
       .maybeSingle();
 
-    if (empError || !empData) {
+    if (!empData) {
       toast({ title: "Empresa no encontrada", description: "Verifica el nombre de tu empresa.", variant: "destructive" });
+      await supabase.auth.signOut();
       setLoading(false);
       return;
     }
 
     if (empData.estado !== "activa") {
       toast({ title: "Empresa inactiva", description: "Tu empresa no tiene una suscripción activa. Contacta a HSControl.", variant: "destructive" });
+      await supabase.auth.signOut();
       setLoading(false);
       return;
     }
 
-    // Hacer login normal
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      toast({ title: "Error al iniciar sesión", description: error.message, variant: "destructive" });
-    }
     setLoading(false);
   };
 
