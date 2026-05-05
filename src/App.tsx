@@ -8,7 +8,6 @@ import Dashboard from "./pages/Dashboard";
 import Accidentes from "./pages/Accidentes";
 import Inspecciones from "./pages/Inspecciones";
 import Capacitaciones from "./pages/Capacitaciones";
-import Examenes from "./pages/Examenes";
 import Documentos from "./pages/Documentos";
 import Alertas from "./pages/Alertas";
 import MatrizRiesgos from "./pages/MatrizRiesgos";
@@ -55,7 +54,6 @@ const AppRoutes = () => (
     <Route path="/accidentes" element={<ProtectedRoute><Accidentes /></ProtectedRoute>} />
     <Route path="/inspecciones" element={<ProtectedRoute><Inspecciones /></ProtectedRoute>} />
     <Route path="/capacitaciones" element={<ProtectedRoute><Capacitaciones /></ProtectedRoute>} />
-    <Route path="/examenes" element={<ProtectedRoute><Examenes /></ProtectedRoute>} />
     <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
     <Route path="/alertas" element={<ProtectedRoute><Alertas /></ProtectedRoute>} />
     <Route path="/matriz-riesgos" element={<ProtectedRoute><MatrizRiesgos /></ProtectedRoute>} />
