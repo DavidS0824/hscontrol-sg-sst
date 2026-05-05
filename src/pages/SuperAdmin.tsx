@@ -32,6 +32,10 @@ export default function SuperAdmin() {
   const [openEmpresa, setOpenEmpresa] = useState(false);
   const [editingEmpresa, setEditingEmpresa] = useState<Empresa | null>(null);
   const [empresaForm, setEmpresaForm] = useState<Partial<Empresa>>({ estado: "activa" });
+  const [openUsuario, setOpenUsuario] = useState(false);
+  const [editingUsuario, setEditingUsuario] = useState<EmpresaUsuario | null>(null);
+  const [userForm, setUserForm] = useState<{ email: string; password: string; full_name: string; roles: string[] }>({ email: "", password: "", full_name: "", roles: ["visualizador"] });
+  const [savingUser, setSavingUser] = useState(false);
 
   useEffect(() => {
     if (isSuperAdmin) { fetchPlanes(); fetchEmpresas(); }
@@ -115,6 +119,38 @@ export default function SuperAdmin() {
     const { error } = await supabase.from("empresa_usuarios").delete().eq("user_id", userId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Usuario desvinculado" }); if (selectedEmpresa) fetchUsuariosEmpresa(selectedEmpresa.id); }
+  };
+
+  const eliminarUsuario = async (userId: string) => {
+    if (!confirm("¿Eliminar este usuario PERMANENTEMENTE? Esta acción no se puede deshacer.")) return;
+    const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "delete", user_id: userId } });
+    if (error || (data as any)?.error) {
+      toast({ title: "Error", description: error?.message || (data as any)?.error, variant: "destructive" });
+    } else {
+      toast({ title: "Usuario eliminado" });
+      if (selectedEmpresa) fetchUsuariosEmpresa(selectedEmpresa.id);
+    }
+  };
+
+  const guardarUsuario = async () => {
+    if (!selectedEmpresa) return;
+    setSavingUser(true);
+    try {
+      if (editingUsuario) {
+        const payload: any = { action: "update", user_id: editingUsuario.user_id, full_name: userForm.full_name };
+        if (userForm.password) payload.password = userForm.password;
+        const { data, error } = await supabase.functions.invoke("admin-users", { body: payload });
+        if (error || (data as any)?.error) { toast({ title: "Error", description: error?.message || (data as any)?.error, variant: "destructive" }); return; }
+        toast({ title: "Usuario actualizado" });
+      } else {
+        if (!userForm.email || !userForm.password) { toast({ title: "Email y contraseña requeridos", variant: "destructive" }); return; }
+        const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "create", email: userForm.email, password: userForm.password, full_name: userForm.full_name, empresa_id: selectedEmpresa.id, roles: userForm.roles } });
+        if (error || (data as any)?.error) { toast({ title: "Error", description: error?.message || (data as any)?.error, variant: "destructive" }); return; }
+        toast({ title: "Usuario creado" });
+      }
+      setOpenUsuario(false); setEditingUsuario(null); setUserForm({ email: "", password: "", full_name: "", roles: ["visualizador"] });
+      fetchUsuariosEmpresa(selectedEmpresa.id);
+    } finally { setSavingUser(false); }
   };
 
   const toggleRol = async (userId: string, rol: string, tiene: boolean) => {
@@ -248,8 +284,17 @@ export default function SuperAdmin() {
 
                 {selectedEmpresa && (
                   <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">
-                      Plan: <strong>{selectedEmpresa.plan?.nombre || "—"}</strong> · Límite usuarios: <strong>{selectedEmpresa.plan?.max_usuarios || "—"}</strong> · Actuales: <strong>{usuarios.length}</strong>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="text-sm text-muted-foreground">
+                        Plan: <strong>{selectedEmpresa.plan?.nombre || "—"}</strong> · Límite usuarios: <strong>{selectedEmpresa.plan?.max_usuarios || "—"}</strong> · Actuales: <strong>{usuarios.length}</strong>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => { setEditingUsuario(null); setUserForm({ email: "", password: "", full_name: "", roles: ["visualizador"] }); setOpenUsuario(true); }}
+                        disabled={!!selectedEmpresa.plan && usuarios.length >= (selectedEmpresa.plan.max_usuarios || 0)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />Nuevo usuario
+                      </Button>
                     </div>
                     <Table>
                       <TableHeader><TableRow><TableHead>Nombre</TableHead><TableHead>Roles</TableHead><TableHead>Mover a</TableHead><TableHead></TableHead></TableRow></TableHeader>
@@ -275,8 +320,10 @@ export default function SuperAdmin() {
                                 <SelectContent>{empresas.filter(e => e.id !== selectedEmpresa.id).map(e => <SelectItem key={e.id} value={e.id}>{e.nombre}</SelectItem>)}</SelectContent>
                               </Select>
                             </TableCell>
-                            <TableCell className="text-right">
-                              <Button size="sm" variant="ghost" onClick={() => desvincularUsuario(u.user_id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                            <TableCell className="text-right space-x-1">
+                              <Button size="sm" variant="ghost" title="Editar" onClick={() => { setEditingUsuario(u); setUserForm({ email: "", password: "", full_name: u.full_name || "", roles: u.roles || [] }); setOpenUsuario(true); }}><Edit className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="ghost" title="Desvincular" onClick={() => desvincularUsuario(u.user_id)}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                              <Button size="sm" variant="ghost" title="Eliminar usuario" onClick={() => eliminarUsuario(u.user_id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -285,6 +332,35 @@ export default function SuperAdmin() {
                     </Table>
                   </div>
                 )}
+
+                <Dialog open={openUsuario} onOpenChange={(o) => { setOpenUsuario(o); if (!o) { setEditingUsuario(null); } }}>
+                  <DialogContent>
+                    <DialogHeader><DialogTitle>{editingUsuario ? "Editar usuario" : "Nuevo usuario"}</DialogTitle></DialogHeader>
+                    <div className="space-y-3 py-2">
+                      {!editingUsuario && (
+                        <div><Label>Email *</Label><Input type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} /></div>
+                      )}
+                      <div><Label>Nombre completo</Label><Input value={userForm.full_name} onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })} /></div>
+                      <div><Label>{editingUsuario ? "Nueva contraseña (opcional)" : "Contraseña *"}</Label><Input type="text" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} placeholder="Mínimo 6 caracteres" /></div>
+                      {!editingUsuario && (
+                        <div>
+                          <Label>Roles</Label>
+                          <div className="flex gap-2 flex-wrap mt-2">
+                            {ROLES.map(r => {
+                              const tiene = userForm.roles.includes(r);
+                              return (
+                                <Button key={r} type="button" size="sm" variant={tiene ? "default" : "outline"} onClick={() => setUserForm({ ...userForm, roles: tiene ? userForm.roles.filter(x => x !== r) : [...userForm.roles, r] })}>
+                                  {r}
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <DialogFooter><Button onClick={guardarUsuario} disabled={savingUser}>{savingUser ? "Guardando..." : "Guardar"}</Button></DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </TabsContent>
