@@ -7,17 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Users, Crown, Plus, Trash2, Edit, Check, X } from "lucide-react";
+import {
+  Building2, Users, Crown, Plus, Trash2, Edit, Check, X,
+  TrendingUp, AlertTriangle, DollarSign, Activity, Eye
+} from "lucide-react";
 
 type Plan = { id: string; nombre: string; precio: number; max_usuarios: number; max_trabajadores: number; modulos: string[] };
-type Empresa = { id: string; nombre: string; nit: string | null; contacto_email: string | null; contacto_telefono: string | null; estado: string; fecha_inicio: string; fecha_vencimiento: string | null; plan_id: string | null; plan?: Plan | null };
+type Empresa = { id: string; nombre: string; nit: string | null; contacto_email: string | null; contacto_telefono: string | null; estado: string; fecha_inicio: string; fecha_vencimiento: string | null; plan_id: string | null; plan?: Plan | null; totalUsuarios?: number };
 type EmpresaUsuario = { user_id: string; empresa_id: string; email?: string; full_name?: string; roles?: string[] };
 
 const ROLES = ["admin", "visualizador", "participante"];
@@ -36,6 +38,7 @@ export default function SuperAdmin() {
   const [editingUsuario, setEditingUsuario] = useState<EmpresaUsuario | null>(null);
   const [userForm, setUserForm] = useState<{ email: string; password: string; full_name: string; roles: string[] }>({ email: "", password: "", full_name: "", roles: ["visualizador"] });
   const [savingUser, setSavingUser] = useState(false);
+  const [empresasUsuarios, setEmpresasUsuarios] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (isSuperAdmin) { fetchPlanes(); fetchEmpresas(); }
@@ -52,7 +55,21 @@ export default function SuperAdmin() {
 
   const fetchEmpresas = async () => {
     const { data } = await supabase.from("empresas").select("*, planes(*)").order("created_at", { ascending: false });
-    if (data) setEmpresas(data.map((e: any) => ({ ...e, plan: e.planes ? { ...e.planes, modulos: Array.isArray(e.planes.modulos) ? e.planes.modulos : [] } : null })));
+    if (data) {
+      const empresasData = data.map((e: any) => ({
+        ...e,
+        plan: e.planes ? { ...e.planes, modulos: Array.isArray(e.planes.modulos) ? e.planes.modulos : [] } : null
+      }));
+      setEmpresas(empresasData);
+
+      // Obtener cantidad de usuarios por empresa
+      const { data: links } = await supabase.from("empresa_usuarios").select("empresa_id");
+      if (links) {
+        const counts: Record<string, number> = {};
+        links.forEach((l: any) => { counts[l.empresa_id] = (counts[l.empresa_id] || 0) + 1; });
+        setEmpresasUsuarios(counts);
+      }
+    }
   };
 
   const fetchUsuariosEmpresa = async (empresaId: string) => {
@@ -71,8 +88,7 @@ export default function SuperAdmin() {
   const guardarEmpresa = async () => {
     if (!empresaForm.nombre) { toast({ title: "Nombre requerido", variant: "destructive" }); return; }
     const payload: any = {
-      nombre: empresaForm.nombre,
-      nit: empresaForm.nit || null,
+      nombre: empresaForm.nombre, nit: empresaForm.nit || null,
       contacto_email: empresaForm.contacto_email || null,
       contacto_telefono: empresaForm.contacto_telefono || null,
       estado: empresaForm.estado || "activa",
@@ -90,7 +106,7 @@ export default function SuperAdmin() {
   };
 
   const eliminarEmpresa = async (id: string) => {
-    if (!confirm("¿Eliminar esta empresa? Se desvincularán sus usuarios pero los datos quedan.")) return;
+    if (!confirm("¿Eliminar esta empresa?")) return;
     const { error } = await supabase.from("empresas").delete().eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else { toast({ title: "Empresa eliminada" }); fetchEmpresas(); if (selectedEmpresa?.id === id) setSelectedEmpresa(null); }
@@ -105,7 +121,7 @@ export default function SuperAdmin() {
   const cambiarEstadoEmpresa = async (empresaId: string, estado: string) => {
     const { error } = await supabase.from("empresas").update({ estado }).eq("id", empresaId);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: `Empresa ${estado === "activa" ? "activada" : estado}` }); fetchEmpresas(); }
+    else { toast({ title: `Empresa ${estado}` }); fetchEmpresas(); }
   };
 
   const moverUsuario = async (userId: string, nuevaEmpresaId: string) => {
@@ -122,7 +138,7 @@ export default function SuperAdmin() {
   };
 
   const eliminarUsuario = async (userId: string) => {
-    if (!confirm("¿Eliminar este usuario PERMANENTEMENTE? Esta acción no se puede deshacer.")) return;
+    if (!confirm("¿Eliminar este usuario PERMANENTEMENTE?")) return;
     const { data, error } = await supabase.functions.invoke("admin-users", { body: { action: "delete", user_id: userId } });
     if (error || (data as any)?.error) {
       toast({ title: "Error", description: error?.message || (data as any)?.error, variant: "destructive" });
@@ -155,15 +171,25 @@ export default function SuperAdmin() {
 
   const toggleRol = async (userId: string, rol: string, tiene: boolean) => {
     if (tiene) {
-      const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", rol as any);
-      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", rol as any);
     } else {
-      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: rol as any });
-      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      await supabase.from("user_roles").insert({ user_id: userId, role: rol as any });
     }
     toast({ title: "Rol actualizado" });
     if (selectedEmpresa) fetchUsuariosEmpresa(selectedEmpresa.id);
   };
+
+  // Métricas para el dashboard
+  const empresasActivas = empresas.filter(e => e.estado === "activa").length;
+  const empresasSuspendidas = empresas.filter(e => e.estado === "suspendida").length;
+  const ingresosMensuales = empresas.filter(e => e.estado === "activa").reduce((acc, e) => acc + (e.plan?.precio || 0), 0);
+  const totalUsuarios = Object.values(empresasUsuarios).reduce((a, b) => a + b, 0);
+  const hoy = new Date();
+  const empresasPorVencer = empresas.filter(e => {
+    if (!e.fecha_vencimiento || e.estado !== "activa") return false;
+    const dias = (new Date(e.fecha_vencimiento).getTime() - hoy.getTime()) / 86400000;
+    return dias >= 0 && dias <= 30;
+  });
 
   if (loading) return <AppLayout><div className="p-8 text-muted-foreground">Cargando...</div></AppLayout>;
   if (!isSuperAdmin) return <Navigate to="/" replace />;
@@ -174,17 +200,146 @@ export default function SuperAdmin() {
         <div className="flex items-center gap-3">
           <Crown className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Super Administración</h1>
-            <p className="text-sm text-muted-foreground">Gestiona empresas, planes, usuarios y roles del sistema</p>
+            <h1 className="text-2xl font-bold tracking-tight">Panel HSControl</h1>
+            <p className="text-sm text-muted-foreground">Administración general del sistema</p>
           </div>
         </div>
 
-        <Tabs defaultValue="empresas" className="space-y-4">
+        <Tabs defaultValue="dashboard" className="space-y-4">
           <TabsList>
+            <TabsTrigger value="dashboard"><Activity className="h-4 w-4 mr-2" />Dashboard</TabsTrigger>
             <TabsTrigger value="empresas"><Building2 className="h-4 w-4 mr-2" />Empresas</TabsTrigger>
             <TabsTrigger value="usuarios"><Users className="h-4 w-4 mr-2" />Usuarios</TabsTrigger>
             <TabsTrigger value="planes"><Crown className="h-4 w-4 mr-2" />Planes</TabsTrigger>
           </TabsList>
+
+          {/* DASHBOARD */}
+          <TabsContent value="dashboard" className="space-y-6">
+
+            {/* Métricas principales */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">Empresas activas</p>
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                  <p className="text-3xl font-bold mt-2">{empresasActivas}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{empresasSuspendidas} suspendidas</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">Ingresos mensuales</p>
+                    <DollarSign className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  <p className="text-3xl font-bold mt-2">${ingresosMensuales.toLocaleString("es-CO")}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Planes activos</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">Total usuarios</p>
+                    <Users className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <p className="text-3xl font-bold mt-2">{totalUsuarios}</p>
+                  <p className="text-xs text-muted-foreground mt-1">En todas las empresas</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">Por vencer</p>
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  </div>
+                  <p className="text-3xl font-bold mt-2 text-amber-500">{empresasPorVencer.length}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Próximos 30 días</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Alertas de vencimiento */}
+            {empresasPorVencer.length > 0 && (
+              <Card className="border-amber-200 bg-amber-50/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-amber-700">
+                    <AlertTriangle className="h-4 w-4" />
+                    Empresas próximas a vencer
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {empresasPorVencer.map(e => {
+                      const dias = Math.ceil((new Date(e.fecha_vencimiento!).getTime() - hoy.getTime()) / 86400000);
+                      return (
+                        <div key={e.id} className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{e.nombre}</span>
+                          <Badge variant="outline" className="text-amber-700 border-amber-300">
+                            Vence en {dias} días
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Tabla resumen de empresas */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Resumen de empresas</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Empresa</TableHead>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Usuarios</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Vencimiento</TableHead>
+                      <TableHead className="text-right">Ver</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {empresas.map(e => {
+                      const numUsuarios = empresasUsuarios[e.id] || 0;
+                      const maxUsuarios = e.plan?.max_usuarios || 0;
+                      return (
+                        <TableRow key={e.id}>
+                          <TableCell className="font-medium">{e.nombre}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{e.plan?.nombre || "Sin plan"}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <span className={numUsuarios >= maxUsuarios ? "text-amber-600 font-medium" : ""}>
+                              {numUsuarios}/{maxUsuarios}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={e.estado === "activa" ? "default" : e.estado === "suspendida" ? "secondary" : "destructive"}>
+                              {e.estado}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {e.fecha_vencimiento ? new Date(e.fecha_vencimiento).toLocaleDateString("es-CO") : "—"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button size="sm" variant="ghost" onClick={() => { setSelectedEmpresa(e); }}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* EMPRESAS */}
           <TabsContent value="empresas" className="space-y-4">
@@ -225,7 +380,6 @@ export default function SuperAdmin() {
                 </DialogContent>
               </Dialog>
             </div>
-
             <Card>
               <CardContent className="p-0">
                 <Table>
@@ -286,13 +440,9 @@ export default function SuperAdmin() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <div className="text-sm text-muted-foreground">
-                        Plan: <strong>{selectedEmpresa.plan?.nombre || "—"}</strong> · Límite usuarios: <strong>{selectedEmpresa.plan?.max_usuarios || "—"}</strong> · Actuales: <strong>{usuarios.length}</strong>
+                        Plan: <strong>{selectedEmpresa.plan?.nombre || "—"}</strong> · Límite: <strong>{selectedEmpresa.plan?.max_usuarios || "—"}</strong> · Actuales: <strong>{usuarios.length}</strong>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() => { setEditingUsuario(null); setUserForm({ email: "", password: "", full_name: "", roles: ["visualizador"] }); setOpenUsuario(true); }}
-                        disabled={!!selectedEmpresa.plan && usuarios.length >= (selectedEmpresa.plan.max_usuarios || 0)}
-                      >
+                      <Button size="sm" onClick={() => { setEditingUsuario(null); setUserForm({ email: "", password: "", full_name: "", roles: ["visualizador"] }); setOpenUsuario(true); }}>
                         <Plus className="h-4 w-4 mr-1" />Nuevo usuario
                       </Button>
                     </div>
@@ -321,9 +471,9 @@ export default function SuperAdmin() {
                               </Select>
                             </TableCell>
                             <TableCell className="text-right space-x-1">
-                              <Button size="sm" variant="ghost" title="Editar" onClick={() => { setEditingUsuario(u); setUserForm({ email: "", password: "", full_name: u.full_name || "", roles: u.roles || [] }); setOpenUsuario(true); }}><Edit className="h-4 w-4" /></Button>
-                              <Button size="sm" variant="ghost" title="Desvincular" onClick={() => desvincularUsuario(u.user_id)}><X className="h-4 w-4 text-muted-foreground" /></Button>
-                              <Button size="sm" variant="ghost" title="Eliminar usuario" onClick={() => eliminarUsuario(u.user_id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              <Button size="sm" variant="ghost" onClick={() => { setEditingUsuario(u); setUserForm({ email: "", password: "", full_name: u.full_name || "", roles: u.roles || [] }); setOpenUsuario(true); }}><Edit className="h-4 w-4" /></Button>
+                              <Button size="sm" variant="ghost" onClick={() => desvincularUsuario(u.user_id)}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                              <Button size="sm" variant="ghost" onClick={() => eliminarUsuario(u.user_id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -333,13 +483,11 @@ export default function SuperAdmin() {
                   </div>
                 )}
 
-                <Dialog open={openUsuario} onOpenChange={(o) => { setOpenUsuario(o); if (!o) { setEditingUsuario(null); } }}>
+                <Dialog open={openUsuario} onOpenChange={(o) => { setOpenUsuario(o); if (!o) setEditingUsuario(null); }}>
                   <DialogContent>
                     <DialogHeader><DialogTitle>{editingUsuario ? "Editar usuario" : "Nuevo usuario"}</DialogTitle></DialogHeader>
                     <div className="space-y-3 py-2">
-                      {!editingUsuario && (
-                        <div><Label>Email *</Label><Input type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} /></div>
-                      )}
+                      {!editingUsuario && <div><Label>Email *</Label><Input type="email" value={userForm.email} onChange={(e) => setUserForm({ ...userForm, email: e.target.value })} /></div>}
                       <div><Label>Nombre completo</Label><Input value={userForm.full_name} onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })} /></div>
                       <div><Label>{editingUsuario ? "Nueva contraseña (opcional)" : "Contraseña *"}</Label><Input type="text" value={userForm.password} onChange={(e) => setUserForm({ ...userForm, password: e.target.value })} placeholder="Mínimo 6 caracteres" /></div>
                       {!editingUsuario && (
@@ -348,11 +496,7 @@ export default function SuperAdmin() {
                           <div className="flex gap-2 flex-wrap mt-2">
                             {ROLES.map(r => {
                               const tiene = userForm.roles.includes(r);
-                              return (
-                                <Button key={r} type="button" size="sm" variant={tiene ? "default" : "outline"} onClick={() => setUserForm({ ...userForm, roles: tiene ? userForm.roles.filter(x => x !== r) : [...userForm.roles, r] })}>
-                                  {r}
-                                </Button>
-                              );
+                              return <Button key={r} type="button" size="sm" variant={tiene ? "default" : "outline"} onClick={() => setUserForm({ ...userForm, roles: tiene ? userForm.roles.filter(x => x !== r) : [...userForm.roles, r] })}>{r}</Button>;
                             })}
                           </div>
                         </div>
@@ -388,7 +532,7 @@ export default function SuperAdmin() {
                 </Card>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">Los precios y módulos se pueden modificar directamente en la base de datos. Próximamente: editor visual de planes.</p>
+            <p className="text-xs text-muted-foreground">Los precios y módulos se pueden modificar directamente en la base de datos.</p>
           </TabsContent>
         </Tabs>
       </div>
