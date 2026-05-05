@@ -107,14 +107,14 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader className="text-center space-y-4 pb-4 pt-8">
-          <img src={logoHSControl} alt="HSControl" className="h-48 mx-auto object-contain" />
-          <div className="space-y-2">
-            <h1 className="text-xl font-bold text-foreground tracking-tight leading-tight">
-              Gestiona la seguridad de tu<br />empresa en minutos
-            </h1>
+          <img src={logoHSControl} alt="HSControl" className="h-56 mx-auto object-contain" />
+          <div className="space-y-1">
+            <p className="text-base font-semibold text-foreground tracking-wide">
+              Gestión Inteligente en Seguridad y Salud
+            </p>
             <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              <span>Sistema SG-SST · Cumplimiento normativo colombiano</span>
+              <span>Gestiona la seguridad de tu empresa en minutos</span>
             </div>
           </div>
         </CardHeader>
