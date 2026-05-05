@@ -16,7 +16,6 @@ import {
   Siren,
   Bot,
   FileSignature,
-  ScanLine,
   Users,
   Brain,
   ChevronLeft,
@@ -64,7 +63,6 @@ const moduleGroups: ModuleGroup[] = [
     icon: Home,
     items: [
       { title: "Dashboard", url: "/", icon: LayoutDashboard, key: "dashboard" },
-      { title: "Análisis IA", url: "/analitica-ia", icon: Brain, key: "analitica-ia" },
     ],
   },
   {
@@ -74,8 +72,7 @@ const moduleGroups: ModuleGroup[] = [
     items: [
       { title: "Trabajadores", url: "/trabajadores", icon: Users, key: "trabajadores" },
       { title: "Capacitaciones", url: "/capacitaciones", icon: GraduationCap, key: "capacitaciones" },
-      { title: "Exámenes Médicos", url: "/examenes", icon: Stethoscope, key: "examenes" },
-      { title: "Exámenes (OCR IA)", url: "/examenes-medicos", icon: ScanLine, key: "examenes-medicos" },
+      { title: "Exámenes Médicos", url: "/examenes-medicos", icon: Stethoscope, key: "examenes-medicos" },
     ],
   },
   {
@@ -116,6 +113,7 @@ const moduleGroups: ModuleGroup[] = [
     items: [
       { title: "Asistente IA", url: "/asistente-ia", icon: Bot, key: "asistente-ia" },
       { title: "Generador Docs IA", url: "/generador-documentos", icon: FileSignature, key: "generador-documentos" },
+      { title: "Análisis IA", url: "/analitica-ia", icon: Brain, key: "analitica-ia" },
     ],
   },
   {
@@ -161,7 +159,6 @@ export function AppSidebar() {
           const groupActive = group.items.some((i) =>
             i.url === "/" ? location.pathname === "/" : location.pathname === i.url
           );
-          // When collapsed, render flat icons (no collapsible UI)
           if (collapsed) {
             return (
               <SidebarGroup key={group.id}>
