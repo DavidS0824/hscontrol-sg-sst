@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Loader2, ShieldCheck } from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
 import logoHSControl from "@/assets/logo-hscontrol.jpeg";
 
 export default function Login() {
@@ -106,17 +106,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
       <Card className="w-full max-w-md shadow-xl border-0">
-        <CardHeader className="text-center space-y-4 pb-4 pt-8">
-          <img src={logoHSControl} alt="HSControl" className="h-56 mx-auto object-contain" />
-          <div className="space-y-1">
-            <p className="text-base font-semibold text-foreground tracking-wide">
-              Gestión Inteligente en Seguridad y Salud
-            </p>
-            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-              <span>Gestiona la seguridad de tu empresa en minutos</span>
-            </div>
-          </div>
+        <CardHeader className="text-center pb-2 pt-8">
+          <img src={logoHSControl} alt="HSControl" className="h-28 mx-auto object-contain" />
         </CardHeader>
         <CardContent className="pb-8">
           <Tabs defaultValue="login" className="space-y-4">
