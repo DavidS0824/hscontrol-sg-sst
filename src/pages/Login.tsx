@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Loader2 } from "lucide-react";
+import { Building2, Loader2, ShieldCheck } from "lucide-react";
 import logoHSControl from "@/assets/logo-hscontrol.jpeg";
 
 export default function Login() {
@@ -45,7 +45,6 @@ export default function Login() {
     }
     setLoading(true);
 
-    // Primero hacer login con Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError || !authData.user) {
       toast({ title: "Error al iniciar sesión", description: authError?.message ?? "Credenciales incorrectas.", variant: "destructive" });
@@ -53,7 +52,6 @@ export default function Login() {
       return;
     }
 
-    // Verificar si es super_admin → acceso directo sin validar empresa
     const { data: superRole } = await supabase
       .from("user_roles")
       .select("role")
@@ -66,7 +64,6 @@ export default function Login() {
       return;
     }
 
-    // No es super admin → validar empresa
     const { data: empData } = await supabase
       .from("empresas")
       .select("id, nombre, estado")
@@ -107,20 +104,21 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md shadow-card">
-        <CardHeader className="text-center space-y-4 pb-2">
-          <img src={logoHSControl} alt="HSControl" className="h-40 mx-auto object-contain" />
-          <div>
-            <p className="text-base font-semibold text-foreground tracking-wide">
-              Gestión inteligente en Seguridad y Salud
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Sistema SG-SST para MiPymes colombianas
-            </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+      <Card className="w-full max-w-md shadow-xl border-0">
+        <CardHeader className="text-center space-y-4 pb-4 pt-8">
+          <img src={logoHSControl} alt="HSControl" className="h-48 mx-auto object-contain" />
+          <div className="space-y-2">
+            <h1 className="text-xl font-bold text-foreground tracking-tight leading-tight">
+              Gestiona la seguridad de tu<br />empresa en minutos
+            </h1>
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+              <span>Sistema SG-SST · Cumplimiento normativo colombiano</span>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-8">
           <Tabs defaultValue="login" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Ingresar</TabsTrigger>
@@ -164,7 +162,7 @@ export default function Login() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full h-11 text-base font-semibold" disabled={loading}>
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" /> Ingresando...
