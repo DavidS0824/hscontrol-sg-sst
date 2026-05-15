@@ -329,9 +329,14 @@ export default function SuperAdmin() {
                             {e.fecha_vencimiento ? new Date(e.fecha_vencimiento).toLocaleDateString("es-CO") : "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" onClick={() => { setSelectedEmpresa(e); }}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button size="sm" variant="ghost" title="Ver usuarios" onClick={() => { setSelectedEmpresa(e); }}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" title="Ingresar como esta empresa" onClick={async () => { await impersonateEmpresa(e.id); toast({ title: `Viendo como ${e.nombre}` }); navigate("/"); }}>
+                                <LogIn className="h-4 w-4 text-primary" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
