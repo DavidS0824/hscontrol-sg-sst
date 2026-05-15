@@ -1,7 +1,9 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { Bell, User } from "lucide-react";
+import { Bell, User, Eye, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,11 +11,31 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children, title }: AppLayoutProps) {
+  const { impersonating, empresa, isSuperAdmin, stopImpersonating } = useAuth();
+  const navigate = useNavigate();
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
+          {isSuperAdmin && impersonating && (
+            <div className="bg-amber-100 border-b border-amber-300 text-amber-900 px-4 py-2 flex items-center justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2 min-w-0">
+                <Eye className="h-4 w-4 shrink-0" />
+                <span className="truncate">
+                  Viendo el sistema como <strong>{empresa?.nombre || "empresa"}</strong> (Plan {empresa?.plan?.nombre || "—"})
+                </span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 border-amber-400 text-amber-900 hover:bg-amber-200"
+                onClick={() => { stopImpersonating(); navigate("/super-admin"); }}
+              >
+                <X className="h-3.5 w-3.5 mr-1" /> Salir de la vista
+              </Button>
+            </div>
+          )}
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 shrink-0">
             <div className="flex items-center gap-3">
               <SidebarTrigger className="text-muted-foreground" />

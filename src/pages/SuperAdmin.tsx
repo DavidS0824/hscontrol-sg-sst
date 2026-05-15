@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/hooks/use-toast";
 import {
   Building2, Users, Crown, Plus, Trash2, Edit, Check, X,
-  TrendingUp, AlertTriangle, DollarSign, Activity, Eye
+  TrendingUp, AlertTriangle, DollarSign, Activity, Eye, LogIn
 } from "lucide-react";
 
 type Plan = { id: string; nombre: string; precio: number; max_usuarios: number; max_trabajadores: number; modulos: string[] };
@@ -25,8 +25,9 @@ type EmpresaUsuario = { user_id: string; empresa_id: string; email?: string; ful
 const ROLES = ["admin", "visualizador", "participante"];
 
 export default function SuperAdmin() {
-  const { isSuperAdmin, loading } = useAuth();
+  const { isSuperAdmin, loading, impersonateEmpresa } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [usuarios, setUsuarios] = useState<EmpresaUsuario[]>([]);
@@ -328,9 +329,14 @@ export default function SuperAdmin() {
                             {e.fecha_vencimiento ? new Date(e.fecha_vencimiento).toLocaleDateString("es-CO") : "—"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button size="sm" variant="ghost" onClick={() => { setSelectedEmpresa(e); }}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <div className="flex items-center justify-end gap-1">
+                              <Button size="sm" variant="ghost" title="Ver usuarios" onClick={() => { setSelectedEmpresa(e); }}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" title="Ingresar como esta empresa" onClick={async () => { await impersonateEmpresa(e.id); toast({ title: `Viendo como ${e.nombre}` }); navigate("/"); }}>
+                                <LogIn className="h-4 w-4 text-primary" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
@@ -412,6 +418,7 @@ export default function SuperAdmin() {
                         <TableCell className="text-sm">{e.fecha_vencimiento || "—"}</TableCell>
                         <TableCell className="text-right space-x-1">
                           <Button size="sm" variant="ghost" onClick={() => { setSelectedEmpresa(e); }}><Users className="h-4 w-4" /></Button>
+                            <Button size="sm" variant="ghost" title="Ingresar como esta empresa" onClick={async () => { await impersonateEmpresa(e.id); toast({ title: `Viendo como ${e.nombre}` }); navigate("/"); }}><LogIn className="h-4 w-4 text-primary" /></Button>
                           <Button size="sm" variant="ghost" onClick={() => { setEditingEmpresa(e); setEmpresaForm(e); setOpenEmpresa(true); }}><Edit className="h-4 w-4" /></Button>
                           <Button size="sm" variant="ghost" onClick={() => eliminarEmpresa(e.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </TableCell>

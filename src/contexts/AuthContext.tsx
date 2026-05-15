@@ -31,9 +31,14 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   hasModule: (module: string) => boolean;
   signOut: () => Promise<void>;
+  impersonating: boolean;
+  impersonateEmpresa: (empresaId: string) => Promise<void>;
+  stopImpersonating: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const IMPERSONATE_KEY = "hsc_impersonate_empresa_id";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -41,6 +46,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [empresa, setEmpresa] = useState<EmpresaInfo | null>(null);
+  const [impersonating, setImpersonating] = useState<boolean>(
+    typeof window !== "undefined" && !!localStorage.getItem(IMPERSONATE_KEY)
+  );
 
   const fetchRoles = async (userId: string) => {
     const { data } = await supabase
@@ -52,17 +60,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchEmpresa = async (userId: string) => {
-    const { data: link } = await supabase
-      .from("empresa_usuarios")
-      .select("empresa_id")
-      .eq("user_id", userId)
-      .maybeSingle();
-    if (!link) { setEmpresa(null); return; }
+  const loadEmpresaById = async (empresaId: string) => {
     const { data: emp } = await supabase
       .from("empresas")
       .select("id, nombre, estado, fecha_vencimiento, plan_id, planes(id, nombre, precio, modulos, max_usuarios, max_trabajadores)")
-      .eq("id", link.empresa_id)
+      .eq("id", empresaId)
       .maybeSingle();
     if (emp) {
       const plan = (emp as any).planes;
@@ -80,7 +82,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           max_trabajadores: plan.max_trabajadores,
         } : null,
       });
+    } else {
+      setEmpresa(null);
     }
+  };
+
+  const fetchEmpresa = async (userId: string) => {
+    const impersonatedId = typeof window !== "undefined" ? localStorage.getItem(IMPERSONATE_KEY) : null;
+    if (impersonatedId) {
+      await loadEmpresaById(impersonatedId);
+      return;
+    }
+    const { data: link } = await supabase
+      .from("empresa_usuarios")
+      .select("empresa_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!link) { setEmpresa(null); return; }
+    await loadEmpresaById(link.empresa_id);
   };
 
   useEffect(() => {
@@ -117,17 +136,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasRole = (role: AppRole) => roles.includes(role);
   const isSuperAdmin = roles.includes("super_admin");
   const hasModule = (module: string) => {
-    if (isSuperAdmin) return true;
+    if (isSuperAdmin && !impersonating) return true;
     if (!empresa || empresa.estado !== "activa" || !empresa.plan) return false;
     return empresa.plan.modulos.includes(module);
   };
 
   const signOut = async () => {
+    localStorage.removeItem(IMPERSONATE_KEY);
+    setImpersonating(false);
     await supabase.auth.signOut();
   };
 
+  const impersonateEmpresa = async (empresaId: string) => {
+    localStorage.setItem(IMPERSONATE_KEY, empresaId);
+    setImpersonating(true);
+    await loadEmpresaById(empresaId);
+  };
+
+  const stopImpersonating = () => {
+    localStorage.removeItem(IMPERSONATE_KEY);
+    setImpersonating(false);
+    if (user) fetchEmpresa(user.id);
+    else setEmpresa(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, roles, loading, hasRole, empresa, isSuperAdmin, hasModule, signOut }}>
+    <AuthContext.Provider value={{ user, session, roles, loading, hasRole, empresa, isSuperAdmin, hasModule, signOut, impersonating, impersonateEmpresa, stopImpersonating }}>
       {children}
     </AuthContext.Provider>
   );
