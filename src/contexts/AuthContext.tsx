@@ -57,6 +57,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq("user_id", userId);
     if (data) {
       setRoles(data.map((r) => r.role as AppRole));
+    } else {
+      setRoles([]);
     }
   };
 
@@ -102,30 +104,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadEmpresaById(link.empresa_id);
   };
 
+  const loadUserData = async (userId: string) => {
+    await Promise.all([fetchRoles(userId), fetchEmpresa(userId)]);
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        setLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => {
-            fetchRoles(session.user.id);
-            fetchEmpresa(session.user.id);
+          setTimeout(async () => {
+            await loadUserData(session.user.id);
+            setLoading(false);
           }, 0);
         } else {
           setRoles([]);
           setEmpresa(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRoles(session.user.id);
-        fetchEmpresa(session.user.id);
+        await loadUserData(session.user.id);
+      } else {
+        setRoles([]);
+        setEmpresa(null);
       }
       setLoading(false);
     });
